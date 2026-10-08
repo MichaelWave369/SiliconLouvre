@@ -85,3 +85,45 @@ export function submissionFilename(title) {
   const safe=scrub(title,80).toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,48);
   return 'silicon-louvre-proposal-'+(safe||'artwork')+'.json';
 }
+
+/**
+ * Curatorial triage only. A passing packet is NOT approval to publish:
+ * creator permission, identity claims and license choice need human review.
+ */
+export function inspectSubmissionPacket(packet) {
+  const errors=[];
+  if(!packet || typeof packet!=='object' || Array.isArray(packet)){
+    return {ok:false,errors:['Not a submission object.']};
+  }
+  if(packet.schema!==SUBMISSION_SCHEMA) errors.push('Unknown submission schema.');
+  if(packet.exhibitionStatus!=='proposal-only' ||
+     packet.publicationAuthority!=='human-curator-review-required') {
+    errors.push('Unreviewed packet cannot claim exhibition approval.');
+  }
+  const artist=packet.artwork;
+  const safeArtist=artist && typeof artist==='object' && !Array.isArray(artist);
+  if(!safeArtist) errors.push('Missing public artwork metadata.');
+  else {
+    const validation=validateSubmissionFields({...artist,rightsConfirmed:true,publicConfirmed:true});
+    // Consent is deliberately not transmitted in the public review packet.
+    // It must be confirmed separately by the curator with the artist.
+    errors.push(...validation.errors);
+  }
+  const recipe=packet.source?.recipe;
+  if(recipe?.format!=='silicon-louvre-studio/v1') errors.push('Invalid studio recipe format.');
+  const config=normalizeStudioConfig(recipe);
+  if(!recipe || Object.entries(config).some(([key,value])=>recipe[key]!==value)){
+    errors.push('Invalid or out-of-range studio recipe.');
+  }
+  if(packet.source?.width!==800 || packet.source?.height!==800 ||
+     packet.source?.format!=='image/svg+xml') errors.push('Invalid artwork medium or dimensions.');
+  if(!Array.isArray(packet.files) || packet.files.length!==1 ||
+     packet.files[0]?.name!=='artwork.svg' ||
+     packet.files[0]?.format!=='image/svg+xml' ||
+     packet.files[0]?.data!==makeStudioSvg(config)) {
+    errors.push('Artwork SVG does not match its studio recipe.');
+  }
+  if(typeof packet.createdAt!=='string' ||
+     !Number.isFinite(Date.parse(packet.createdAt))) errors.push('Missing or invalid creation timestamp.');
+  return {ok:errors.length===0,errors};
+}
