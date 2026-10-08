@@ -58,8 +58,17 @@ const rooms = [
     icon: '◇',
   },
   {
-    id: 'artists',
+    id: 'community-gallery',
     number: '06',
+    title: 'The Community Gallery',
+    detail: 'A future collection of human-approved visitor art with documented creative credits',
+    label: 'VISIT COMMUNITY GALLERY',
+    status: 'CURATION OPEN',
+    icon: '✺',
+  },
+  {
+    id: 'artists',
+    number: '07',
     title: 'The Artist Registry',
     detail: 'Who contributed, how the work was made, and how to propose art',
     label: 'MEET THE ARTISTS',
