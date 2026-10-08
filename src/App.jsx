@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import IllusionArt from './art/IllusionArt.jsx';
 import { artworks, categories, exhibition, attribution } from './data/artworks.js';
+import { artworkIdFromHash, artworkPosition, artworkShareUrl, nextArtworkId } from './lib/gallery.js';
 
 function Arrow({ diagonal = false }) {
   return <span aria-hidden="true" className="arrow">{diagonal ? '↗' : '→'}</span>;
@@ -36,61 +37,135 @@ function WorkCard({ artwork, isSaved, onSave, onOpen }) {
   </article>;
 }
 
-function Modal({ artwork, isSaved, onSave, onClose, onNext, onPrevious }) {
+function Modal({ artwork, isSaved, onSave, onClose, onNext, onPrevious, onJump, viewMode, onViewMode }) {
   const [focusPoint, setFocusPoint] = useState(false);
+  const [showPlaque, setShowPlaque] = useState(true);
   const [copyState, setCopyState] = useState('');
   const closeRef = useRef(null);
   const dialogRef = useRef(null);
-  const handlers = useRef({ onClose, onNext, onPrevious });
-  handlers.current = { onClose, onNext, onPrevious };
+  const handlers = useRef({ onClose, onNext, onPrevious, onViewMode });
+  handlers.current = { onClose, onNext, onPrevious, onViewMode };
+  const isGallery = viewMode === 'gallery';
+  const position = artworkPosition(artworks, artwork.id);
+  const artworkCount = artworks.length;
 
   useEffect(() => {
     const previouslyFocused = document.activeElement;
     const oldOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     closeRef.current?.focus();
+
     const onKeyDown = (event) => {
       if (event.key === 'Escape') handlers.current.onClose();
-      if (event.key === 'ArrowRight' && !event.repeat) handlers.current.onNext();
-      if (event.key === 'ArrowLeft' && !event.repeat) handlers.current.onPrevious();
+      const editable = event.target?.matches?.('input, textarea, select, [contenteditable="true"]');
+      if (!editable && !event.altKey && !event.ctrlKey && !event.metaKey) {
+        if (event.key === 'ArrowRight' && !event.repeat) handlers.current.onNext();
+        if (event.key === 'ArrowLeft' && !event.repeat) handlers.current.onPrevious();
+        if (event.key.toLowerCase() === 'g' && !event.repeat) {
+          handlers.current.onViewMode((mode) => mode === 'gallery' ? 'details' : 'gallery');
+        }
+        if (event.key.toLowerCase() === 'f' && !event.repeat) setFocusPoint((visible) => !visible);
+      }
       if (event.key === 'Tab' && dialogRef.current) {
-        const focusable = [...dialogRef.current.querySelectorAll('button:not([disabled]), a[href]')];
+        const focusable = [...dialogRef.current.querySelectorAll('button:not([disabled]), a[href], input:not([disabled])')]
+          .filter((el) => el.getClientRects().length > 0);
         if (!focusable.length) return;
-        const first = focusable[0], last = focusable[focusable.length - 1];
-        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
-        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (!dialogRef.current.contains(document.activeElement)) {
+          event.preventDefault(); first.focus();
+        } else if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault(); last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault(); first.focus();
+        }
       }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => {
       document.body.style.overflow = oldOverflow;
       window.removeEventListener('keydown', onKeyDown);
-      previouslyFocused?.focus?.();
+      if (previouslyFocused?.isConnected) previouslyFocused.focus();
     };
   }, []);
 
   useEffect(() => { setFocusPoint(false); setCopyState(''); }, [artwork.id]);
+  useEffect(() => { setShowPlaque(true); }, [viewMode]);
 
   async function copyLink() {
-    const link = window.location.origin + window.location.pathname + '#work-' + artwork.id;
+    const link = artworkShareUrl(window.location.origin, window.location.pathname, artwork.id);
     try {
+      if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
       await navigator.clipboard.writeText(link);
       setCopyState('Link copied');
     } catch {
-      setCopyState('Copy unavailable in this browser');
+      setCopyState('Share link: ' + link);
     }
   }
 
-  return <div className="modal-backdrop" onMouseDown={(event) => {
-    if (event.target === event.currentTarget) onClose();
-  }}>
-    <section className="art-modal" role="dialog" aria-modal="true" aria-label={'Artwork: ' + artwork.title}
+  return <div className={'modal-backdrop' + (isGallery ? ' modal-backdrop--gallery' : '')}
+    onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+    <section className={'art-modal' + (isGallery ? ' art-modal--gallery' : '')}
+      role="dialog" aria-modal="true" aria-label={(isGallery ? 'Gallery Walk: ' : 'Artwork: ') + artwork.title}
       ref={dialogRef}>
       <div className="art-modal__topbar">
-        <span className="eyebrow">THE STILLNESS THAT MOVES / {artwork.number} OF 06</span>
-        <button className="icon-close" onClick={onClose} ref={closeRef} aria-label="Close artwork">×</button>
+        <span className="eyebrow" aria-live="polite">{exhibition.title.toUpperCase()} / {artwork.number} OF {String(artworkCount).padStart(2, '0')}</span>
+        <div className="art-modal__top-actions">
+          {isGallery && <button className="modal-text-button" aria-pressed={!showPlaque} onClick={() => setShowPlaque((shown) => !shown)}>
+            {showPlaque ? 'ARTWORK ONLY' : 'SHOW PLAQUE'}
+          </button>}
+          <button className="modal-text-button" onClick={() => onViewMode(isGallery ? 'details' : 'gallery')}>
+            {isGallery ? 'READ DETAILS' : 'ENTER GALLERY VIEW'} <Arrow diagonal/>
+          </button>
+          <button className="icon-close" onClick={onClose} ref={closeRef} aria-label="Close artwork">×</button>
+        </div>
       </div>
-      <div className="art-modal__layout">
+
+      {isGallery ? <div className="gallery-walk">
+        <div className={'gallery-walk__stage' + (!showPlaque ? ' gallery-walk__stage--art-only' : '')}>
+          <div className="gallery-walk__art">
+            <div className="gallery-walk__frame">
+              <IllusionArt variant={artwork.variant} title={artwork.title + ', static optical illusion'}/>
+              {focusPoint && <span className="focus-guide" aria-hidden="true"/>}
+            </div>
+            <span className="gallery-walk__under-art">SL / {artwork.number.padStart(3, '0')} <span>STILL IMAGE · NO ANIMATION</span></span>
+          </div>
+          {showPlaque && <aside className="gallery-walk__plaque" aria-label="Museum wall plaque">
+            <span className="gallery-walk__plaque-number">THE SILICON LOUVRE <span>EST. 2026</span></span>
+            <span className="eyebrow">EXHIBIT {artwork.number} / {artwork.category.toUpperCase()}</span>
+            <h2>{artwork.title}</h2>
+            <p className="gallery-walk__plaque-description">{artwork.description}</p>
+            <div className="gallery-walk__wall-note"><strong>OBSERVATION PROMPT</strong><p>{artwork.lookFor}</p></div>
+            <div className="gallery-walk__wall-note"><strong>MEDIUM & CREDIT</strong><p>{artwork.medium} · {artwork.year}<br/>{attribution.studio}. {attribution.method}</p></div>
+            <button className="gallery-walk__focus" aria-pressed={focusPoint} onClick={() => setFocusPoint((visible) => !visible)}>
+              {focusPoint ? '− REMOVE FOCUS POINT' : '+ ADD FOCUS POINT'}
+            </button>
+          </aside>}
+        </div>
+        <div className="gallery-walk__tour" aria-label="Self-paced exhibition controls">
+          <div className="gallery-walk__tour-heading"><span>SELF-PACED GALLERY WALK</span><span>{String(position).padStart(2, '0')} / {String(artworkCount).padStart(2, '0')}</span></div>
+          <div className="gallery-walk__tour-controls">
+            <button className="gallery-walk__prev" onClick={onPrevious} aria-label="Previous artwork">← <span>PREVIOUS WORK</span></button>
+            <div className="gallery-walk__stops" role="group" aria-label="Choose an artwork in the tour">
+              {artworks.map((work, index) => <button key={work.id} onClick={() => onJump(work.id)}
+                aria-label={'Visit stop ' + (index + 1) + ': ' + work.title}
+                aria-current={work.id === artwork.id ? 'step' : undefined}
+                className={work.id === artwork.id ? 'is-current' : ''}>
+                {String(index + 1).padStart(2, '0')}
+              </button>)}
+            </div>
+            <button className="gallery-walk__next" onClick={onNext} aria-label="Next artwork"><span>NEXT WORK</span> →</button>
+          </div>
+          <div className="gallery-walk__support">
+            <span>← → MOVE BETWEEN WORKS · G SWITCH VIEW · F FOCUS POINT · ESC EXIT</span>
+            <div className="gallery-walk__support-actions">
+              <button onClick={() => onSave(artwork.id)} aria-pressed={isSaved}>{isSaved ? '♥ SAVED' : '♡ SAVE'}</button>
+              <button onClick={copyLink}>SHARE ↗</button>
+            </div>
+          </div>
+          <p className="gallery-walk__copy-state" role="status">{copyState}</p>
+        </div>
+      </div> : <div className="art-modal__layout">
         <div className="art-modal__visual">
           <IllusionArt variant={artwork.variant} title={artwork.title + ', static image'}/>
           {focusPoint && <span className="focus-guide" aria-hidden="true"/>}
@@ -101,19 +176,17 @@ function Modal({ artwork, isSaved, onSave, onClose, onNext, onPrevious }) {
           <h2>{artwork.title}</h2>
           <p className="art-modal__description">{artwork.description}</p>
           <div className="wall-label">
-            <h3>LOOK CLOSER</h3>
-            <p>{artwork.lookFor}</p>
+            <h3>LOOK CLOSER</h3><p>{artwork.lookFor}</p>
           </div>
           <div className="wall-label">
-            <h3>HOW IT WORKS</h3>
-            <p>{artwork.technique}</p>
+            <h3>HOW IT WORKS</h3><p>{artwork.technique}</p>
           </div>
           <div className="wall-label wall-label--attribution">
-            <h3>ARTIST / PROVENANCE</h3>
-            <p>{attribution.studio}. {attribution.method}</p>
+            <h3>ARTIST / PROVENANCE</h3><p>{attribution.studio}. {attribution.method}</p>
           </div>
           <div className="art-modal__actions">
-            <button className="outline-button" onClick={() => setFocusPoint(!focusPoint)}
+            <button className="outline-button" onClick={() => onViewMode('gallery')}>ENTER IMMERSIVE GALLERY <Arrow diagonal/></button>
+            <button className="outline-button" onClick={() => setFocusPoint((visible) => !visible)}
               aria-pressed={focusPoint}>{focusPoint ? 'HIDE FOCUS POINT' : 'SHOW FOCUS POINT'}</button>
             <button className="outline-button" onClick={() => onSave(artwork.id)} aria-pressed={isSaved}>
               {isSaved ? '♥ SAVED' : '♡ SAVE'}
@@ -127,7 +200,7 @@ function Modal({ artwork, isSaved, onSave, onClose, onNext, onPrevious }) {
             <button onClick={onNext} aria-label="Next artwork">NEXT →</button>
           </div>
         </div>
-      </div>
+      </div>}
     </section>
   </div>;
 }
@@ -147,10 +220,10 @@ function readSaved() {
 
 export default function App() {
   const [category, setCategory] = useState('All works');
+  const [viewMode, setViewMode] = useState('details');
   const [saved, setSaved] = useState(readSaved);
   const [selectedId, setSelectedId] = useState(() => {
-    const match = window.location.hash.match(/^#work-([a-z0-9-]+)$/);
-    return match && artworks.some((art) => art.id === match[1]) ? match[1] : null;
+    return artworkIdFromHash(artworks, window.location.hash);
   });
   const visible = useMemo(() => artworks.filter((art) => category === 'All works' || art.category === category), [category]);
   const selected = artworks.find((art) => art.id === selectedId);
@@ -160,25 +233,30 @@ export default function App() {
   }, [saved]);
   useEffect(() => {
     function onHashChange() {
-      const match = window.location.hash.match(/^#work-([a-z0-9-]+)$/);
-      const id = match && artworks.some((art) => art.id === match[1]) ? match[1] : null;
-      setSelectedId(id || null);
+      const id = artworkIdFromHash(artworks, window.location.hash);
+      setSelectedId(id);
+      if (!id) setViewMode('details');
     }
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
 
-  function openWork(id) {
+  function openWork(id, mode) {
+    if (!artworks.some((art) => art.id === id)) return;
+    if (mode) setViewMode(mode);
     setSelectedId(id);
     window.history.replaceState(null, '', '#work-' + id);
   }
+  function startTour() {
+    openWork(artworks[0].id, 'gallery');
+  }
   function closeWork() {
     setSelectedId(null);
-    window.history.replaceState(null, '', '#exhibition');
+    setViewMode('details');
+    window.history.replaceState(null, '', '#collection');
   }
   function moveWork(direction) {
-    const index = artworks.findIndex((art) => art.id === selectedId);
-    openWork(artworks[(index + direction + artworks.length) % artworks.length].id);
+    openWork(nextArtworkId(artworks, selectedId, direction));
   }
   function toggleSaved(id) {
     setSaved((prev) => prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]);
@@ -236,13 +314,13 @@ export default function App() {
         <div className="exhibition-intro__body">
           <div><span className="display-index">01 / THE INAUGURAL EXHIBITION</span><h2 id="exhibition-title">The Stillness<br/><em>That Moves.</em></h2></div>
           <div className="exhibition-intro__aside"><p>Nothing here is moving. Yet your eyes may tell you otherwise. Six original studies explore the strange, beautiful space between sensation and reality.</p>
-          <a className="text-link" href="#collection">VIEW THE WORKS <Arrow/></a></div>
+          <div className="exhibition-intro__links"><button className="button-gold" onClick={startTour}>BEGIN THE GALLERY WALK <Arrow diagonal/></button><a className="text-link" href="#collection">BROWSE THE WORKS <Arrow/></a></div></div>
         </div>
         <div className="exhibition-intro__metrics"><div><strong>06</strong><span>ORIGINAL STUDIES</span></div><div><strong>03</strong><span>PERCEPTUAL THEMES</span></div><div><strong>∞</strong><span>WAYS TO SEE</span></div></div>
       </section>
 
       <section id="collection" className="collection container" aria-labelledby="collection-title">
-        <div className="collection__heading"><div><span className="eyebrow">THE COLLECTION / SL.001</span><h2 id="collection-title">Works on <em>view.</em></h2></div><p>Take your time. Look closer. Your perception is part of the exhibition.</p></div>
+        <div className="collection__heading"><div><span className="eyebrow">THE COLLECTION / SL.001</span><h2 id="collection-title">Works on <em>view.</em></h2></div><div className="collection__aside"><p>Take your time. Look closer. Your perception is part of the exhibition.</p><button className="text-link collection__tour-link" onClick={startTour}>TAKE THE GALLERY WALK <Arrow diagonal/></button></div></div>
         <div className="filters" aria-label="Filter the collection by theme">
           <div className="filters__options">{categories.map((cat) => <button key={cat} aria-pressed={category === cat}
             className={category === cat ? 'active' : ''} onClick={() => setCategory(cat)}>{cat.toUpperCase()}</button>)}</div>
@@ -288,6 +366,7 @@ export default function App() {
       <div className="container footer__bottom"><span>© {new Date().getFullYear()} THE SILICON LOUVRE</span><span>INDEPENDENT PROJECT · NOT AFFILIATED WITH MUSÉE DU LOUVRE</span><span>MADE TO BE SEEN.</span></div>
     </footer>
     {selected && <Modal artwork={selected} isSaved={saved.includes(selected.id)} onSave={toggleSaved}
-      onClose={closeWork} onNext={() => moveWork(1)} onPrevious={() => moveWork(-1)}/>}
+      onClose={closeWork} onNext={() => moveWork(1)} onPrevious={() => moveWork(-1)}
+      onJump={openWork} viewMode={viewMode} onViewMode={setViewMode}/>} 
   </div>;
 }
