@@ -260,6 +260,7 @@ em { color: var(--gold); font-weight: 400; }
   .header-admission { font-size: 9px; }
   .site-header nav { gap: 10px; }
   .site-header nav a { font-size: 9px; }
+  .experience-nav__item .arrow { display: none; }
   .hero { padding-top: 50px; }
   .section-kicker { font-size: 8px; }
   .hero h1 { font-size: clamp(52px, 13vw, 73px); margin-top: 27px; }
