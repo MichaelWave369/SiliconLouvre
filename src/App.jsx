@@ -41,6 +41,8 @@ function Modal({ artwork, isSaved, onSave, onClose, onNext, onPrevious }) {
   const [copyState, setCopyState] = useState('');
   const closeRef = useRef(null);
   const dialogRef = useRef(null);
+  const handlers = useRef({ onClose, onNext, onPrevious });
+  handlers.current = { onClose, onNext, onPrevious };
 
   useEffect(() => {
     const previouslyFocused = document.activeElement;
@@ -48,9 +50,9 @@ function Modal({ artwork, isSaved, onSave, onClose, onNext, onPrevious }) {
     document.body.style.overflow = 'hidden';
     closeRef.current?.focus();
     const onKeyDown = (event) => {
-      if (event.key === 'Escape') onClose();
-      if (event.key === 'ArrowRight' && !event.repeat) onNext();
-      if (event.key === 'ArrowLeft' && !event.repeat) onPrevious();
+      if (event.key === 'Escape') handlers.current.onClose();
+      if (event.key === 'ArrowRight' && !event.repeat) handlers.current.onNext();
+      if (event.key === 'ArrowLeft' && !event.repeat) handlers.current.onPrevious();
       if (event.key === 'Tab' && dialogRef.current) {
         const focusable = [...dialogRef.current.querySelectorAll('button:not([disabled]), a[href]')];
         if (!focusable.length) return;
@@ -65,7 +67,7 @@ function Modal({ artwork, isSaved, onSave, onClose, onNext, onPrevious }) {
       window.removeEventListener('keydown', onKeyDown);
       previouslyFocused?.focus?.();
     };
-  }, [onClose, onNext, onPrevious]);
+  }, []);
 
   useEffect(() => { setFocusPoint(false); setCopyState(''); }, [artwork.id]);
 
