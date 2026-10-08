@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import IllusionArt from './art/IllusionArt.jsx';
 import OriginalMasters from './art/OriginalMasters.jsx';
 import ArtistRegistry from './ArtistRegistry.jsx';
+import CommunityGallery from './CommunityGallery.jsx';
 import VirtualAtrium from './VirtualAtrium.jsx';
 import MuseumPassport from './MuseumPassport.jsx';
 import PerceptionLab from './PerceptionLab.jsx';
@@ -293,6 +294,7 @@ export default function App() {
           <a href="#collection">COLLECTION</a>
           <a href="#passport">PASSPORT</a>
           <a href="#creative-studio">CREATE</a>
+          <a href="#community-gallery">COMMUNITY</a>
           <a href="#artists">ARTISTS</a>
           <a href="#vision">OUR VISION</a>
         </nav>
@@ -363,6 +365,7 @@ export default function App() {
       <PerceptionLab/>
       <OpticalArtStudio/>
       <OriginalMasters/>
+      <CommunityGallery/>
       <ArtistRegistry/>
 
       <section className="between container" aria-label="Museum philosophy">
