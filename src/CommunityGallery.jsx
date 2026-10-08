@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { communityExhibition, curatedWorks } from './data/curatedWorks.js';
 import { makeStudioSvg } from './lib/studio.js';
 import './styles/community.css';
+import CuratorialLedger from './CuratorialLedger.jsx';
 
 const ISSUE_URL='https://github.com/MichaelWave369/SiliconLouvre/issues/new?template=artist-proposal.yml';
 
@@ -124,6 +125,7 @@ export default function CommunityGallery() {
           </article>)}
         </div>}
       <p className="community__note">The Community Gallery only displays contributions that have passed a human-controlled publication review. Proposal submissions and downloadable curator kits do not appear here automatically. The artwork remains static and accessible by text description.</p>
+      <CuratorialLedger/>
     </div>
     {focusWork && <CuratedViewer work={focusWork} onClose={()=>setSelectedId(null)}
       onNext={()=>navigate(1)} onPrevious={()=>navigate(-1)}/>}
