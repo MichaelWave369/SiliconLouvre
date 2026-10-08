@@ -418,3 +418,24 @@ em { color: var(--gold); font-weight: 400; }
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
+
+/* Keep the expanding museum navigation accessible on compact screens. */
+@media (max-width: 760px) {
+  .site-header nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px 20px;
+  }
+  .site-header nav a {
+    min-height: 32px;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+}
+@media (max-width: 420px) {
+  .site-header nav { gap: 5px 13px; }
+  .site-header nav a { font-size: 9px; }
+}
