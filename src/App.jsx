@@ -222,7 +222,14 @@ export default function App() {
         </div>
       </section>
 
-      <div className="ticker" aria-hidden="true"><div>PERCEPTION <span>✦</span> POSSIBILITY <span>✦</span> IMAGINATION <span>✦</span> COLLABORATION <span>✦</span> PERCEPTION <span>✦</span> POSSIBILITY <span>✦</span> IMAGINATION <span>✦</span></div></div>
+      <nav className="experience-nav" aria-label="Explore museum wings">
+        <div className="experience-nav__inner container">
+          <a href="#exhibition" className="experience-nav__item"><span className="experience-nav__number">01</span><span className="experience-nav__label">PERCEPTION <small>Current exhibition</small></span><Arrow diagonal/></a>
+          <a href="#collection" className="experience-nav__item"><span className="experience-nav__number">02</span><span className="experience-nav__label">THE COLLECTION <small>Six works on view</small></span><Arrow diagonal/></a>
+          <a href="#future" className="experience-nav__item"><span className="experience-nav__number">03</span><span className="experience-nav__label">POSSIBILITY <small>Future museum wings</small></span><Arrow diagonal/></a>
+          <a href="#vision" className="experience-nav__item"><span className="experience-nav__number">04</span><span className="experience-nav__label">COLLABORATION <small>Our vision</small></span><Arrow diagonal/></a>
+        </div>
+      </nav>
 
       <section id="exhibition" className="exhibition-intro container" aria-labelledby="exhibition-title">
         <div className="exhibition-intro__top"><span className="eyebrow"><span className="gold-dot"/> CURRENT EXHIBITION</span><span className="eyebrow">VOL. 001 / OCTOBER 2026</span></div>
@@ -252,7 +259,7 @@ export default function App() {
         <span className="eyebrow">THE SILICON LOUVRE / A CURATORIAL THOUGHT</span>
       </section>
 
-      <section className="future" aria-labelledby="future-title">
+      <section id="future" className="future" aria-labelledby="future-title">
         <div className="container">
           <div className="future__heading"><div><span className="eyebrow">BEYOND THE FIRST ROOM</span><h2 id="future-title">An infinite <em>museum.</em></h2></div><p>This is the beginning. More rooms, more mediums, more possibilities. Each wing will open when its artwork and experience are ready.</p></div>
           <div className="room-grid">{rooms.map((room) => <article className="room-card" key={room.number}>
