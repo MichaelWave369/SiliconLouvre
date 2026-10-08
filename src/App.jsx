@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import IllusionArt from './art/IllusionArt.jsx';
+import OriginalMasters from './art/OriginalMasters.jsx';
+import './styles/masters.css';
 import { artworks, categories, exhibition, attribution } from './data/artworks.js';
 import { artworkIdFromHash, artworkPosition, artworkShareUrl, nextArtworkId } from './lib/gallery.js';
 
@@ -330,6 +332,8 @@ export default function App() {
           isSaved={saved.includes(art.id)} onSave={toggleSaved} onOpen={openWork}/>)}</div>
         <div className="collection__note"><span className="asterisk">✳</span><p><strong>A note on perception:</strong> {exhibition.curatorialNote}</p></div>
       </section>
+
+      <OriginalMasters/>
 
       <section className="between container" aria-label="Museum philosophy">
         <span className="between__symbol">✳</span>
