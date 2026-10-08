@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { makeStudioSvg, normalizeStudioConfig, studioFilename, PRESETS, PALETTES } from './lib/studio.js';
 import './styles/studio.css';
+import { DOMISTIKA_HANDOFF_KEY, DOMISTIKA_URL, bridgeSupported, buildDomistikaHandoff } from './lib/domistikaBridge.js';
 
 const modeNames = {
   bloom: 'Radial Bloom',
@@ -24,6 +25,7 @@ function Slider({ id, label, value, min, max, step=1, onChange, suffix='' }) {
 export default function OpticalArtStudio() {
   const [config,setConfig]=useState({...PRESETS.bloom});
   const [feedback,setFeedback]=useState('');
+  const [handoffBusy,setHandoffBusy]=useState(false);
   const svg=useMemo(()=>makeStudioSvg(config),[config]);
   const preview=useMemo(()=> 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg),[svg]);
 
@@ -56,6 +58,24 @@ export default function OpticalArtStudio() {
     } catch {
       setFeedback('Clipboard unavailable. Download the SVG to keep your design.');
     }
+  }
+
+  async function sendToDomistika() {
+    if (handoffBusy) return;
+    if (!bridgeSupported(window.location.origin)) {
+      setFeedback('Direct transfer requires both sites on the same GitHub Pages origin. Download SVG instead.');
+      return;
+    }
+    setHandoffBusy(true);
+    setFeedback('Preparing a five-minute, browser-local transfer…');
+    try {
+      const packageData = await buildDomistikaHandoff(config);
+      localStorage.setItem(DOMISTIKA_HANDOFF_KEY, JSON.stringify(packageData));
+      setFeedback('Transfer prepared. Opening Domistika for your review.');
+      window.location.assign(DOMISTIKA_URL);
+    } catch(error) {
+      setFeedback('Could not prepare the transfer (' + (error?.name || 'browser error') + '). Save your SVG instead.');
+    } finally { setHandoffBusy(false); }
   }
 
   return <section className="studio" id="creative-studio" aria-labelledby="studio-title">
@@ -111,8 +131,13 @@ export default function OpticalArtStudio() {
           <div className="studio__actions">
             <button type="button" className="studio__export" onClick={exportSvg}>SAVE YOUR SVG ARTWORK ↗</button>
             <button type="button" className="studio__recipe" onClick={copyRecipe}>COPY DESIGN RECIPE</button>
+            <button type="button" className="studio__bridge" onClick={sendToDomistika}
+              disabled={handoffBusy} aria-describedby="studio-bridge-details">
+              {handoffBusy ? 'PREPARING TRANSFER…' : 'CONTINUE IN DOMISTIKA ↗'}
+            </button>
           </div>
           <p className="studio__feedback" role="status" aria-live="polite">{feedback}</p>
+          <p id="studio-bridge-details" className="studio__bridge-note">Explicit handoff only. Sends this SVG temporarily through shared-origin browser storage; Domistika shows a preview and asks you to back up your current project before you import. The import becomes a raster paint layer, not editable vector paths. Nothing is published.</p>
           <p className="studio__copyright-note">The image is yours to save and remix. This workshop does not submit designs to the museum's curated permanent collection. Publishing an exhibit requires review and permission.</p>
         </div>
       </div>
