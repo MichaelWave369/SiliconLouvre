@@ -1,0 +1,41 @@
+name: Curated artwork correction or withdrawal
+description: Request a curator-reviewed correction or withdrawal. Do not post private identity evidence in public.
+title: "[Curatorial change] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **This is a public GitHub issue.** Don't post a home address, contact information, legal ID, personal documents, passwords, private messages, or any other sensitive evidence. A request is not automatic removal or approval. A curator will need to validate authority through a suitable private process if necessary.
+  - type: dropdown
+    id: change
+    attributes:
+      label: Requested change
+      options:
+        - Correct artwork title, credits or description
+        - Revise approved artwork or visual settings
+        - Withdraw artwork from current exhibition
+        - Report an attribution or rights concern
+    validations:
+      required: true
+  - type: input
+    id: artwork
+    attributes:
+      label: Public artwork identifier or link
+      description: Link to the exhibited work or provide the existing public slug.
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Public summary of requested change
+      description: Explain what should change without including sensitive identity evidence.
+    validations:
+      required: true
+  - type: checkboxes
+    id: acknowledgement
+    attributes:
+      label: Public information notice
+      options:
+        - label: I understand this issue is public, and my request requires curator review.
+          required: true
