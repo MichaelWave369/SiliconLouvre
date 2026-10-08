@@ -9,9 +9,17 @@ if(!Array.isArray(onBranch)) {
 }
 let baseline;
 try {
-  baseline=JSON.parse(execFileSync('git',['show','origin/main:'+historical],{encoding:'utf8'}));
-} catch(error) {
-  console.error('Cannot inspect base-branch curatorial events. Check full Git fetch in CI; do not bypass history verification.');
+  // Verify the base branch exists before classifying a missing path as first-installation.
+  execFileSync('git',['rev-parse','--verify','origin/main^{commit}'],{stdio:'pipe'});
+  try {
+    execFileSync('git',['cat-file','-e','origin/main:'+historical],{stdio:'pipe'});
+    baseline=JSON.parse(execFileSync('git',['show','origin/main:'+historical],{encoding:'utf8'}));
+  } catch {
+    // This PR is the first introduction of the ledger; main has no older events.
+    baseline=[];
+  }
+} catch {
+  console.error('Cannot verify base branch. Full Git history must be available in CI.');
   process.exit(1);
 }
 if(!Array.isArray(baseline) || onBranch.length<baseline.length) {
