@@ -143,6 +143,14 @@ Community Gallery artwork now has a **reviewed publication lifecycle**, not just
 
 See [Curatorial publishing and withdrawal policy](docs/curatorial-publishing.md).
 
+## Exhibition 004 · Domistika Dialogues
+
+**Original Drawings & Inspired Transformations.** A new museum wing will display an actual human-created Domistika drawing alongside its actual AI-inspired response, equally framed and independently credited. The section has an honest exhibition-preparation state until verified image pairs are supplied and approved.
+
+The wing includes mobile-responsive paired cards, a keyboard-accessible full-size viewer, distinct media alt descriptions, creative process plaques, Museum Passport and navigation integration, and a strict `npm run verify:dialogues` media integrity check included in `npm run check`. Only locally installed curator-approved pairs are ever displayed. No fake source artworks, unreviewed submissions, or remote media are published.
+
+Read the [Domistika Dialogues import and exhibition guide](docs/domistika-dialogues.md) to install the first authentic original/inspired sets.
+
 ## Run locally
 
 Requires Node.js 22 or newer:
