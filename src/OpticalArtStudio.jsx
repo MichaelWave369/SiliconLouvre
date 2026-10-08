@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import SubmissionDesk from './SubmissionDesk.jsx';
 import { makeStudioSvg, normalizeStudioConfig, studioFilename, PRESETS, PALETTES } from './lib/studio.js';
 import './styles/studio.css';
 import { DRAFTS_STORAGE_KEY, MAX_DRAFTS, asRecipe, normalizeDraftName, parseDrafts, parseRecipe, removeDraft, saveDraft } from './lib/studioDrafts.js';
@@ -221,9 +222,10 @@ export default function OpticalArtStudio() {
           <p className="studio__copyright-note">The image is yours to save and remix. This workshop does not submit designs to the museum's curated permanent collection. Publishing an exhibit requires review and permission.</p>
         </div>
       </div>
+      <SubmissionDesk config={config}/>
       <div className="studio__afterword"><span className="studio__star" aria-hidden="true">✳</span>
         <p>Art doesn't have to end when the visitor leaves the room. These compositions are still images, even when their geometry creates the impression of movement. The studio makes no stress or medical claims.</p>
-        <a href="#artists">EXPLORE THE ARTIST REGISTRY →</a>
+        <a href="#submission-desk">PREPARE AN EXHIBITION PROPOSAL →</a>
       </div>
     </div>
   </section>;

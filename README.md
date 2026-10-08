@@ -111,6 +111,14 @@ Visitors can save up to 12 design recipes privately in their browser, reload the
 
 The draft shelf does not upload artwork, publish it, or collect visitor identity. Clearing browser storage removes locally saved drafts. See the [draft shelf visitor guide](docs/creative-draft-shelf-v1.md).
 
+## Exhibition Submission Desk v1.0
+
+Artists using the Creative Studio can prepare a **curator-reviewed exhibition proposal** with an artwork title, public display credit, contributor roles, artistic process, rights proposal and an accessibility description. The desk exports a portable JSON curator kit containing the actual generated SVG, a separate SVG file, and a shareable plain-text proposal summary.
+
+The site never uploads proposals or publishes anything automatically. A public [GitHub artist proposal form](https://github.com/MichaelWave369/SiliconLouvre/issues/new?template=artist-proposal.yml) remains the opt-in submission path. A local `npm run inspect:submission -- path/to/proposal.json` command can check packet integrity and status before human review, **without granting publication approval**.
+
+See [Exhibition Submission Desk guide and review policy](docs/exhibition-submission-desk.md).
+
 ## Run locally
 
 Requires Node.js 22 or newer:
