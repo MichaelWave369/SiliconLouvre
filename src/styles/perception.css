@@ -1,0 +1,56 @@
+/* Perception Lab: three self-paced educational stations. No autoplay effects. */
+.perception { background:#151219; padding:110px 0 120px; border-block:1px solid var(--rule); }
+.perception__topline { display:flex; justify-content:space-between; flex-wrap:wrap; gap:16px; padding-bottom:25px; border-bottom:1px solid var(--rule); }
+.perception__topline .eyebrow:first-child { color:var(--gold); }
+.perception__topline .eyebrow:last-child { color:#95848c; }
+.perception__intro { display:grid; grid-template-columns:1.4fr .6fr; gap:50px; align-items:end; padding:45px 0 57px; }
+.perception__intro .display-index { color:#ab988e; margin-bottom:25px; }
+.perception__intro h2 { font-family:var(--serif); font-size:clamp(53px,6.1vw,90px); font-weight:400; letter-spacing:-.055em; line-height:1.09; }
+.perception__intro > div:last-child { display:grid; gap:25px; justify-items:start; }
+.perception__intro p { color:#bcadb3; font-size:14px; line-height:1.9; }
+.perception__stations { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:22px; align-items:stretch; }
+.perception__station { background:#231b23; border:1px solid #6e5658; display:flex; flex-direction:column; min-width:0; }
+.perception__station-heading { padding:28px 26px 26px; min-height:255px; }
+.perception__station-index { font-size:10px; font-weight:700; letter-spacing:.17em; color:#c5a67e; }
+.perception__station h3 { margin:19px 0 14px; font-family:var(--serif); font-size:clamp(31px,3vw,44px); letter-spacing:-.045em; line-height:1.14; font-weight:400; }
+.perception__station-heading p { font-size:13px; color:#b4a6ad; line-height:1.78; max-width:390px; }
+.perception__comparison { display:grid; grid-template-columns:1fr 1fr; position:relative; aspect-ratio:600/420; background:#292329; overflow:hidden; }
+.perception__context { display:grid; place-items:center; min-width:0; }
+.perception__sample { display:block; width:clamp(50px,36%,110px); aspect-ratio:1; box-shadow:0 0 0 1px #0000000b; }
+.perception__proof { position:absolute; z-index:2; left:25%; right:25%; top:50%; height:11px; transform:translateY(-50%); box-shadow:0 0 0 1px #29232920; pointer-events:none; }
+.perception__depth { aspect-ratio:600/420; overflow:hidden; background:#1b1826; }
+.perception__depth svg { width:100%; height:100%; display:block; }
+.perception__motion { aspect-ratio:600/420; background:#0d0b27; position:relative; overflow:hidden; display:grid; place-items:center; }
+.perception__motion svg { display:block; height:100%; max-width:100%; aspect-ratio:1; }
+.perception__still-label { position:absolute; left:13px; bottom:11px; background:#14101ae3; border:1px solid #9a7c69; padding:9px; color:#ffdbb0; font-size:8px; letter-spacing:.08em; font-weight:700; }
+.perception__focus { width:10px; height:10px; border-radius:50%; border:2px solid #fff; background:#171021; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); box-shadow:0 0 0 3px #0a092d,0 0 0 5px #fff; pointer-events:none; }
+.perception__controls { padding:22px 23px 20px; display:grid; gap:15px; background:#201920; }
+.perception__controls label { font-size:10px; font-weight:700; letter-spacing:.13em; color:#dfc29e; display:flex; justify-content:space-between; gap:12px; }
+.perception__controls output { color:#f5d6a7; font-variant-numeric:tabular-nums; }
+.perception__controls input[type="range"] { width:100%; accent-color:#d4ae7a; cursor:pointer; min-height:30px; }
+.perception__controls button { border:1px solid #94735a; background:#30232c; color:#e6c9a1; font-size:9px; font-weight:700; letter-spacing:.12em; min-height:45px; padding:12px; }
+.perception__controls button:hover, .perception__controls button[aria-pressed="true"] { border-color:#f2d3a1; background:#46313a; }
+.perception__controls--single { padding-top:22px; margin-top:0; }
+.perception__interpretation { margin-top:auto; padding:26px 25px 29px; border-top:1px solid var(--rule); }
+.perception__interpretation > span { display:block; font-size:9px; color:var(--gold); font-weight:700; letter-spacing:.17em; margin-bottom:12px; }
+.perception__interpretation p { font-size:12px; line-height:1.85; color:#b6a8ac; }
+.perception__interpretation code { color:#eed3aa; font-size:12px; }
+.perception__note { display:flex; gap:18px; align-items:flex-start; border:1px solid var(--rule); margin-top:42px; padding:24px; color:#b6a9ae; line-height:1.8; font-size:12px; }
+.perception__note span { font-size:24px; color:var(--gold); line-height:1.3; }
+@media (max-width:1080px) {
+  .perception__stations { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .perception__station-heading { min-height:0; }
+}
+@media (max-width:700px) {
+  .perception { padding:75px 0; }
+  .perception__intro { grid-template-columns:1fr; gap:25px; padding-bottom:40px; }
+  .perception__intro h2 { font-size:clamp(50px,10vw,76px); }
+  .perception__stations { grid-template-columns:1fr; }
+  .perception__station-heading { padding:24px; }
+  .perception__station h3 { font-size:39px; }
+  .perception__sample { width:35%; max-width:115px; }
+  .perception__motion svg { width:100%; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .perception *, .perception *::before, .perception *::after { animation:none!important; transition:none!important; }
+}
