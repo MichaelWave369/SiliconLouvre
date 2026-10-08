@@ -1,0 +1,6 @@
+# Curatorial publication changes require the museum owner's review
+# when GitHub branch protection/rulesets require CODEOWNER reviews.
+# CODEOWNERS alone does NOT enforce approvals.
+src/data/curatedWorks.js @MichaelWave369
+src/data/artistRegistry.js @MichaelWave369
+src/data/foundingMasters.js @MichaelWave369
