@@ -16,7 +16,16 @@ https://michaelwave369.github.io/SiliconLouvre/
 
 Build status and source: https://github.com/MichaelWave369/SiliconLouvre
 
-## Features in v0.1
+## Latest: Gallery Walk v0.2
+
+- **Self-paced six-stop tour** with large, framed optical-art presentations and individual museum plaques.
+- **Artwork Only** option for a more immersive, distraction-free display; restore the plaque at any time.
+- Tour entry buttons, numbered stops, guided navigation and keyboard shortcuts (← →, G, F, Esc).
+- Same artwork details, direct links, local favorites and provenance data; nothing autoplays or emits sound.
+- Responsive display for phones and tablets.
+- See the [Visitor Guide](docs/visitor-guide.md) for viewing instructions, accessibility and credits.
+
+## Foundation: v0.1
 
 - Responsive museum entrance and inaugural exhibition with six deterministic SVG images.
 - Filter by theme (apparent motion, depth, perception).
@@ -53,7 +62,7 @@ The production base path in `vite.config.js` is configured for GitHub Pages at `
 
 ## Publishing
 
-Merge the opening-night pull request to `main`, then in **Settings → Pages → Build and deployment** select **GitHub Actions**. The workflow tests every PR and deploys built assets from `main` to GitHub Pages. The first deployment may require manual Pages approval or enabling Actions in repository settings.
+Merge a passing release pull request into `main`. In **Settings → Pages → Build and deployment**, select **GitHub Actions**. The workflow tests every PR and deploys built assets from `main` to GitHub Pages. The first deployment may require manual Pages approval or enabling Actions in repository settings.
 
 ## Exhibition data
 
