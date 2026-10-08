@@ -5,7 +5,7 @@ export const SUBMISSION_CREDIT_TYPES = Object.freeze(['human','human-ai-assisted
 export const SUBMISSION_LICENSES = Object.freeze(['rights-retained','cc-by-4.0','cc0-1.0']);
 
 const scrub = (value, limit) => typeof value === 'string'
-  ? value.trim().replace(/[\u0000-\u001f\u007f]/g, ' ').slice(0,limit)
+  ? value.replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0,limit)
   : '';
 
 export function normalizeSubmissionFields(input = {}) {
