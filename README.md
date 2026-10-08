@@ -105,6 +105,12 @@ The transfer is **not automatic** and does not publish artwork. Vector paths rem
 
 See [Creative Handoff contract and visitor checklist](docs/domistika-handoff-v1.md).
 
+## Creative Studio Draft Shelf v1.0
+
+Visitors can save up to 12 design recipes privately in their browser, reload their settings later, paste older `silicon-louvre-studio/v1` recipes, and remove drafts with confirmation. The SVG export and Domistika handoff continue to work with the chosen design.
+
+The draft shelf does not upload artwork, publish it, or collect visitor identity. Clearing browser storage removes locally saved drafts. See the [draft shelf visitor guide](docs/creative-draft-shelf-v1.md).
+
 ## Run locally
 
 Requires Node.js 22 or newer:
