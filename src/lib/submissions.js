@@ -111,7 +111,7 @@ export function inspectSubmissionPacket(packet) {
   }
   const recipe=packet.source?.recipe;
   if(recipe?.format!=='silicon-louvre-studio/v1') errors.push('Invalid studio recipe format.');
-  const config=normalizeStudioConfig(recipe);
+  const config=normalizeStudioConfig(recipe && typeof recipe==='object' ? recipe : {});
   if(!recipe || Object.entries(config).some(([key,value])=>recipe[key]!==value)){
     errors.push('Invalid or out-of-range studio recipe.');
   }
