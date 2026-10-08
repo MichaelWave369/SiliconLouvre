@@ -79,6 +79,16 @@ An opt-in, free browser-only **Visitor Passport** now appears after the Virtual 
 - Visitors can confirm clearing their stamps without deleting favorites.
 - Details: [Museum Passport visitor guide](docs/museum-passport.md).
 
+## Perception Lab v0.8 · Education Wing
+
+A free, self-paced learning room now accompanies the art. Three interactive stations demonstrate **same-gray squares against different surroundings**, **linear perspective on a flat SVG**, and **the subjective experience of a static repeated pattern**.
+
+- Slider-based contrast comparison, fixed-value proof bridge, perspective guide toggle, and optional stationary focus dot.
+- No animation, medical or stress claims, accounts, telemetry, or required responses.
+- Accessible controls, mobile layouts and tests of fixed color values and geometry.
+- Visitor Passport room directory now links to the lab.
+- Full visitor and curatorial guidance: [The Perception Lab](docs/perception-lab.md).
+
 ## Run locally
 
 Requires Node.js 22 or newer:
