@@ -57,6 +57,18 @@ The museum's new **Artist Registry** profiles published creative contributors an
 - `npm run check` validates approved profiles, exhibition references and contributor credit completeness.
 - Read [the registry and curatorial policy](docs/artist-registry.md) for review rules and how to add approved records.
 
+## Virtual Atrium v0.6
+
+The museum now has a **3D-inspired, navigable gallery room** in Exhibition 001. Choose any of the six original, still SVG artworks from a framed spatial display, then enter the existing immersive Gallery Walk from the central painting.
+
+- Left/right controls and six direct artwork stops.
+- Buttons, keyboard navigation and a mobile-friendly design.
+- Uses CSS perspective, not WebGL or VR. No extra runtime dependencies.
+- Motion transitions obey visitors' reduced-motion preferences.
+- Works without online media APIs and preserves the original Gallery Walk and artist credits.
+
+Read the [Virtual Atrium visitor guide](docs/virtual-atrium.md). Later phases may add walkable rooms and opt-in WebGL rendering, but they are not claimed as complete.
+
 ## Run locally
 
 Requires Node.js 22 or newer:
