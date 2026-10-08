@@ -5,6 +5,7 @@ import ArtistRegistry from './ArtistRegistry.jsx';
 import VirtualAtrium from './VirtualAtrium.jsx';
 import MuseumPassport from './MuseumPassport.jsx';
 import PerceptionLab from './PerceptionLab.jsx';
+import OpticalArtStudio from './OpticalArtStudio.jsx';
 import './styles/masters.css';
 import { artworks, categories, exhibition, attribution } from './data/artworks.js';
 import { artworkIdFromHash, artworkPosition, artworkShareUrl, nextArtworkId } from './lib/gallery.js';
@@ -291,6 +292,7 @@ export default function App() {
           <a href="#atrium">ATRIUM</a>
           <a href="#collection">COLLECTION</a>
           <a href="#passport">PASSPORT</a>
+          <a href="#creative-studio">CREATE</a>
           <a href="#artists">ARTISTS</a>
           <a href="#vision">OUR VISION</a>
         </nav>
@@ -359,6 +361,7 @@ export default function App() {
       </section>
 
       <PerceptionLab/>
+      <OpticalArtStudio/>
       <OriginalMasters/>
       <ArtistRegistry/>
 
