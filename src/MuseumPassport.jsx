@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { artworks } from './data/artworks.js';
 import { foundingMasters } from './data/foundingMasters.js';
+import { domistikaDialoguePairs } from './data/domistikaDialogues.js';
+import { installedDialoguePairs } from './lib/dialogues.js';
 import { visitedCount } from './lib/passport.js';
 import './styles/passport.css';
 
@@ -10,6 +12,11 @@ const installedFiles = import.meta.glob('./assets/masters/*.webp', {
 const installedMasters = foundingMasters.filter((work) =>
   Boolean(installedFiles['./assets/masters/' + work.file])
 );
+
+const pairedFiles = import.meta.glob('./assets/dialogues/*.{png,jpg,jpeg,webp}', {
+  eager: true, query: '?url', import: 'default'
+});
+const installedDialogues = installedDialoguePairs(domistikaDialoguePairs,pairedFiles);
 
 const rooms = [
   {
@@ -72,7 +79,7 @@ const rooms = [
     title: 'Domistika Dialogues',
     detail: 'Original drawings and AI-inspired transformations presented as credited pairs',
     label: 'ENTER THE DIALOGUES WING',
-    status: 'FIRST PAIRS PENDING',
+    status: installedDialogues.length ? 'OPEN' : 'FIRST PAIRS PENDING',
     icon: '✦',
   },
   {
