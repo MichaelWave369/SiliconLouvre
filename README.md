@@ -97,6 +97,14 @@ This studio does **not** publish user artwork to the permanent collection, reque
 
 Read the [Optical Art Studio guide](docs/optical-art-studio.md) for controls, limitations and future interoperability ideas.
 
+## Domistika Creative Handoff v1
+
+The Optical Art Studio can explicitly send a short-lived, integrity-checked SVG to Domistika through browser-local storage when both GitHub Pages apps are deployed under the same origin. Domistika previews the image, requires a download backup and visitor confirmation, then imports it as a **raster paint layer**.
+
+The transfer is **not automatic** and does not publish artwork. Vector paths remain available through the original Save SVG function. If Domistika's matching receiver is not deployed, the visitor can still save SVG manually.
+
+See [Creative Handoff contract and visitor checklist](docs/domistika-handoff-v1.md).
+
 ## Run locally
 
 Requires Node.js 22 or newer:
