@@ -4,6 +4,7 @@ import OriginalMasters from './art/OriginalMasters.jsx';
 import ArtistRegistry from './ArtistRegistry.jsx';
 import VirtualAtrium from './VirtualAtrium.jsx';
 import MuseumPassport from './MuseumPassport.jsx';
+import PerceptionLab from './PerceptionLab.jsx';
 import './styles/masters.css';
 import { artworks, categories, exhibition, attribution } from './data/artworks.js';
 import { artworkIdFromHash, artworkPosition, artworkShareUrl, nextArtworkId } from './lib/gallery.js';
@@ -354,9 +355,10 @@ export default function App() {
         </div>
         <div className="art-grid">{visible.map((art) => <WorkCard key={art.id} artwork={art}
           isSaved={saved.includes(art.id)} onSave={toggleSaved} onOpen={(id) => openWork(id, 'details', 'collection')}/>)}</div>
-        <div className="collection__note"><span className="asterisk">✳</span><p><strong>A note on perception:</strong> {exhibition.curatorialNote}</p></div>
+        <div className="collection__note"><span className="asterisk">✳</span><p><strong>A note on perception:</strong> {exhibition.curatorialNote} <a href="#perception-lab">Explore how these effects work in the Perception Lab ↗</a></p></div>
       </section>
 
+      <PerceptionLab/>
       <OriginalMasters/>
       <ArtistRegistry/>
 
