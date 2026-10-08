@@ -224,6 +224,7 @@ function readSaved() {
 
 export default function App() {
   const [category, setCategory] = useState('All works');
+  const returnToRef = useRef('collection');
   const [viewMode, setViewMode] = useState('details');
   const [saved, setSaved] = useState(readSaved);
   const [selectedId, setSelectedId] = useState(() => {
@@ -245,19 +246,20 @@ export default function App() {
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
 
-  function openWork(id, mode) {
+  function openWork(id, mode, returnTo) {
     if (!artworks.some((art) => art.id === id)) return;
+    if (returnTo) returnToRef.current = returnTo;
     if (mode) setViewMode(mode);
     setSelectedId(id);
     window.history.replaceState(null, '', '#work-' + id);
   }
   function startTour() {
-    openWork(artworks[0].id, 'gallery');
+    openWork(artworks[0].id, 'gallery', 'collection');
   }
   function closeWork() {
     setSelectedId(null);
     setViewMode('details');
-    window.history.replaceState(null, '', '#collection');
+    window.history.replaceState(null, '', '#' + returnToRef.current);
   }
   function moveWork(direction) {
     openWork(nextArtworkId(artworks, selectedId, direction));
@@ -325,7 +327,7 @@ export default function App() {
         <div className="exhibition-intro__metrics"><div><strong>06</strong><span>ORIGINAL STUDIES</span></div><div><strong>03</strong><span>PERCEPTUAL THEMES</span></div><div><strong>∞</strong><span>WAYS TO SEE</span></div></div>
       </section>
 
-      <VirtualAtrium onEnterWork={(id) => openWork(id, 'gallery')}/>
+      <VirtualAtrium onEnterWork={(id) => openWork(id, 'gallery', 'atrium')}/>
 
       <section id="collection" className="collection container" aria-labelledby="collection-title">
         <div className="collection__heading"><div><span className="eyebrow">THE COLLECTION / SL.001</span><h2 id="collection-title">Works on <em>view.</em></h2></div><div className="collection__aside"><p>Take your time. Look closer. Your perception is part of the exhibition.</p><button className="text-link collection__tour-link" onClick={startTour}>TAKE THE GALLERY WALK <Arrow diagonal/></button></div></div>
@@ -335,7 +337,7 @@ export default function App() {
           <span className="filters__count">{String(visible.length).padStart(2, '0')} WORKS ON VIEW</span>
         </div>
         <div className="art-grid">{visible.map((art) => <WorkCard key={art.id} artwork={art}
-          isSaved={saved.includes(art.id)} onSave={toggleSaved} onOpen={openWork}/>)}</div>
+          isSaved={saved.includes(art.id)} onSave={toggleSaved} onOpen={(id) => openWork(id, 'details', 'collection')}/>)}</div>
         <div className="collection__note"><span className="asterisk">✳</span><p><strong>A note on perception:</strong> {exhibition.curatorialNote}</p></div>
       </section>
 
