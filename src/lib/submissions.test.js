@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { PRESETS } from './studio.js';
-import {normalizeSubmissionFields,validateSubmissionFields,submissionRecord,submissionIssueText,submissionFilename,SUBMISSION_SCHEMA} from './submissions.js';
+import {normalizeSubmissionFields,validateSubmissionFields,submissionRecord,submissionIssueText,submissionFilename,inspectSubmissionPacket,SUBMISSION_SCHEMA} from './submissions.js';
 
 const form={
  title:'Chromatic Observatory',
@@ -54,4 +54,20 @@ test('metadata is bounded, labels are scrubbed and generated artwork is independ
  assert.doesNotMatch(r.data.files[0].data,/alert\(1\)/);
  assert.doesNotMatch(submissionIssueText(r.data),/<script>/);
  assert.equal(submissionFilename('<script>'),'silicon-louvre-proposal-script.json');
+});
+
+test('curator triage recognizes intact kits but never approves their publication',()=>{
+ const r=submissionRecord(form,PRESETS.clockwork,'2026-10-08T20:00:00.000Z');
+ assert.equal(r.ok,true);
+ assert.deepEqual(inspectSubmissionPacket(r.data),{ok:true,errors:[]});
+ const changedSvg=structuredClone(r.data);
+ changedSvg.files[0].data+='<script>alert(1)</script>';
+ assert.equal(inspectSubmissionPacket(changedSvg).ok,false);
+ const fakeApproval={...r.data,exhibitionStatus:'approved'};
+ assert.equal(inspectSubmissionPacket(fakeApproval).ok,false);
+ const badRecipe={...r.data,source:{...r.data.source,recipe:null}};
+ assert.equal(inspectSubmissionPacket(badRecipe).ok,false);
+ const invalid={...r.data,artwork:{...r.data.artwork,title:'a'}};
+ assert.equal(inspectSubmissionPacket(invalid).ok,false);
+ assert.equal(inspectSubmissionPacket(null).ok,false);
 });
