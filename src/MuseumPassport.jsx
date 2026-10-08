@@ -67,8 +67,17 @@ const rooms = [
     icon: '✺',
   },
   {
-    id: 'artists',
+    id: 'domistika-dialogues',
     number: '07',
+    title: 'Domistika Dialogues',
+    detail: 'Original drawings and AI-inspired transformations presented as credited pairs',
+    label: 'ENTER THE DIALOGUES WING',
+    status: 'FIRST PAIRS PENDING',
+    icon: '✦',
+  },
+  {
+    id: 'artists',
+    number: '08',
     title: 'The Artist Registry',
     detail: 'Who contributed, how the work was made, and how to propose art',
     label: 'MEET THE ARTISTS',
