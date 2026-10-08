@@ -56,7 +56,7 @@ export default function VirtualAtrium({ onEnterWork }) {
           <p>A navigable, 3D-inspired exhibition room. Choose a painting to explore it in the existing Gallery Walk.</p>
         </div>
       </div>
-      <div className="atrium__gallery" tabIndex={0} onKeyDown={onKeyboard}
+      <div className="atrium__gallery" role="region" tabIndex={0} onKeyDown={onKeyboard}
         aria-label={'Virtual atrium. Focused artwork: ' + selected.title + '. Use left and right arrow keys while in this region to change the focused painting.'}>
         <div className="atrium__architecture" aria-hidden="true">
           <div className="atrium__ceiling"/>
