@@ -119,6 +119,16 @@ The site never uploads proposals or publishes anything automatically. A public [
 
 See [Exhibition Submission Desk guide and review policy](docs/exhibition-submission-desk.md).
 
+## Community Gallery / Curatorial Publishing v1.1
+
+The museum now has **Exhibition 003: The Community Gallery**, a destination for future art created by visitors. It currently displays an honest *awaiting first reviewed artist* wall; no fictional artists or approved works are seeded.
+
+The review process begins with the Creative Studio's Submission Desk and public issue form, then proceeds through a **human curator-approved GitHub PR**. The public catalog is build-checked for valid rights and contribution metadata, a real proposal issue reference, accessible text, reproducible SVG recipe and explicit review receipt. A separate local `npm run stage:curated -- ...` tool can prepare metadata only *after actual human review*. It cannot submit or publish anything.
+
+`src/data/curatedWorks.js` stores only intentionally approved exhibits. `.github/CODEOWNERS` requests curator review, but **protecting main and requiring code-owner approval in GitHub Settings is required to enforce it**. Structural tests alone do not verify actual rights or human identity.
+
+See [Curatorial Publishing Workflow](docs/curatorial-publishing.md) for the admission steps, legal/attribution caveats and acceptance plan.
+
 ## Run locally
 
 Requires Node.js 22 or newer:
