@@ -204,6 +204,76 @@ em { color: var(--gold); font-weight: 400; }
 .art-modal__pagination button { color: var(--gold); background: transparent; border: 0; padding: 7px 0; font-size: inherit; letter-spacing: inherit; }
 .art-modal__pagination button:hover { color: white; }
 
+
+/* Gallery Walk: an opt-in, self-paced immersive museum viewing room. */
+.exhibition-intro__links { display: flex; align-items: center; flex-wrap: wrap; gap: 22px; }
+.exhibition-intro__links .button-gold { border: 0; }
+.collection__aside { display: grid; gap: 20px; justify-items: start; }
+.collection__aside p { font-size: 14px; max-width: 280px; line-height: 1.8; color: #aa9da2; }
+.collection__tour-link { cursor: pointer; background: transparent; color: var(--gold); border: 0; border-bottom: 1px solid var(--rule); }
+.collection__tour-link:hover { border-color: var(--gold); }
+
+.art-modal__top-actions { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 12px; }
+.modal-text-button { background: none; border: 1px solid var(--rule); color: var(--gold); letter-spacing: .12em; font-size: 9px; font-weight: 700; padding: 12px 15px; min-height: 40px; }
+.modal-text-button:hover, .modal-text-button[aria-pressed="true"] { border-color: var(--gold); color: #fff0d5; background: #372a30; }
+
+.modal-backdrop--gallery { padding: 0; background: #0a080d; }
+.art-modal--gallery { width: 100%; max-width: none; min-height: 100dvh; border: none; box-shadow: none; background: #120f14; }
+.art-modal--gallery .art-modal__topbar {
+  position: sticky; top: 0; z-index: 3; background: #161118f2;
+  min-height: 78px; padding-inline: clamp(20px, 4vw, 70px);
+  backdrop-filter: blur(12px);
+}
+.gallery-walk { max-width: 1800px; margin: 0 auto; padding: 25px clamp(18px, 4vw, 72px) 32px; }
+.gallery-walk__stage { min-height: min(690px, calc(100dvh - 235px)); display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(270px, 335px); gap: clamp(28px, 4vw, 75px); align-items: center; }
+.gallery-walk__stage--art-only { grid-template-columns: minmax(0, 1fr); }
+.gallery-walk__art { min-width: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+.gallery-walk__frame { width: min(100%, calc(100dvh - 235px), 940px); aspect-ratio: 1;
+  border: 1px solid #a18b6e; padding: 10px; background: #070710; position: relative; box-shadow: 0 25px 80px #0009; }
+.gallery-walk__frame svg { display: block; width: 100%; height: 100%; }
+.gallery-walk__under-art { display: flex; justify-content: space-between; gap: 15px;
+  width: min(100%, calc(100dvh - 235px), 940px); padding-top: 12px; font-size: 10px; letter-spacing: .14em; color: var(--gold); }
+.gallery-walk__under-art span { color: #8e7b81; font-size: 9px; }
+.gallery-walk__plaque { border-left: 1px solid #927554; padding: 20px 0 20px 27px; min-width: 0; }
+.gallery-walk__plaque-number { display: flex; justify-content: space-between; gap: 10px;
+  color: #c5a676; font-weight: 700; font-size: 8px; letter-spacing: .16em;
+  border-bottom: 1px solid var(--rule); padding-bottom: 24px; margin-bottom: 35px; }
+.gallery-walk__plaque-number span { color: #78666b; }
+.gallery-walk__plaque > .eyebrow { color: var(--gold); }
+.gallery-walk__plaque h2 { font-family: var(--serif); font-size: clamp(33px, 3.5vw, 58px); font-weight: 400;
+  letter-spacing: -.045em; line-height: 1.16; margin: 14px 0 22px; }
+.gallery-walk__plaque-description { font-size: 14px; line-height: 1.85; color: #c9bfc1; margin-bottom: 26px; }
+.gallery-walk__wall-note { padding: 18px 0; border-top: 1px solid var(--rule); }
+.gallery-walk__wall-note strong { font-size: 9px; letter-spacing: .17em; color: var(--gold); }
+.gallery-walk__wall-note p { color: #aca0a6; font-size: 12px; line-height: 1.8; margin-top: 9px; }
+.gallery-walk__focus { margin-top: 16px; padding: 14px 15px; border: 1px solid #856b5f;
+  color: var(--gold); background: transparent; letter-spacing: .11em; font-size: 9px; font-weight: 700; }
+.gallery-walk__focus:hover, .gallery-walk__focus[aria-pressed="true"] { background: #33282b; border-color: var(--gold); }
+
+.gallery-walk__tour { border-top: 1px solid var(--rule); margin-top: 24px; padding-top: 23px; }
+.gallery-walk__tour-heading { display: flex; justify-content: space-between; gap: 15px;
+  font-size: 10px; font-weight: 700; letter-spacing: .2em; color: var(--gold); }
+.gallery-walk__tour-controls { display: grid; grid-template-columns: minmax(95px, 1fr) auto minmax(95px, 1fr);
+  align-items: center; gap: clamp(15px, 3vw, 35px); margin-top: 20px; }
+.gallery-walk__tour-controls > button { background: transparent; border: 1px solid var(--rule);
+  padding: 15px; color: #ebe1d9; font-size: 10px; font-weight: 700; letter-spacing: .13em; min-height: 47px; }
+.gallery-walk__tour-controls > button:hover { border-color: var(--gold); color: var(--gold); }
+.gallery-walk__next { justify-self: end; }
+.gallery-walk__prev { justify-self: start; }
+.gallery-walk__stops { display: flex; justify-content: center; flex-wrap: nowrap; gap: 8px; }
+.gallery-walk__stops button { flex: 0 0 auto; min-width: 40px; min-height: 40px; padding: 9px;
+  border: 1px solid #66525c; background: transparent; color: #9a8890; font-size: 10px; }
+.gallery-walk__stops button:hover, .gallery-walk__stops button.is-current { border-color: var(--gold);
+  background: #3e2c30; color: #ffdeb1; }
+.gallery-walk__support { display: flex; justify-content: space-between; flex-wrap: wrap; align-items: center;
+  gap: 15px; margin-top: 20px; color: #867981; font-size: 9px; letter-spacing: .11em; line-height: 1.7; }
+.gallery-walk__support-actions { display: flex; gap: 12px; }
+.gallery-walk__support-actions button { border: 0; background: none; color: var(--gold); font-size: 9px;
+  font-weight: 700; letter-spacing: .1em; padding: 8px 0; }
+.gallery-walk__support-actions button:hover { color: #fff1d2; }
+.gallery-walk__copy-state { color: var(--gold); font-size: 11px; min-height: 17px; overflow-wrap: anywhere; margin-top: 9px; }
+
 @media (max-width: 1150px) {
   .hero h1 { font-size: 70px; }
   .hero__art { height: 500px; }
@@ -309,6 +379,41 @@ em { color: var(--gold); font-weight: 400; }
   .art-modal__topbar .eyebrow { font-size: 8px; }
   .art-modal h2 { font-size: 43px; }
 }
+
+@media (max-width: 1000px) {
+  .gallery-walk__stage { grid-template-columns: minmax(0, 1fr) minmax(225px, 280px); gap: 27px; }
+  .gallery-walk__stage--art-only { grid-template-columns: 1fr; }
+  .gallery-walk__frame, .gallery-walk__under-art { width: min(100%, calc(100dvh - 300px), 720px); }
+  .gallery-walk__tour-controls { gap: 13px; }
+  .gallery-walk__stops { gap: 5px; }
+}
+@media (max-width: 750px) {
+  .art-modal--gallery .art-modal__topbar { padding: 12px 15px; gap: 10px; flex-wrap: wrap; }
+  .art-modal--gallery .art-modal__topbar .eyebrow { font-size: 9px; }
+  .gallery-walk { padding: 14px 17px 24px; }
+  .gallery-walk__stage { display: flex; flex-direction: column; gap: 24px; min-height: 0; }
+  .gallery-walk__art { width: 100%; }
+  .gallery-walk__frame, .gallery-walk__under-art { width: min(100%, 620px); }
+  .gallery-walk__plaque { align-self: stretch; margin-inline: auto; width: min(100%, 620px);
+    padding: 5px 0 5px 21px; }
+  .gallery-walk__plaque-number { margin-bottom: 18px; padding-bottom: 15px; }
+  .gallery-walk__tour-controls { grid-template-columns: 1fr 1fr; gap: 13px; }
+  .gallery-walk__tour-controls .gallery-walk__stops { grid-column: 1 / -1; grid-row: 1; }
+  .gallery-walk__tour-controls .gallery-walk__prev { grid-column: 1; grid-row: 2; width: 100%; }
+  .gallery-walk__tour-controls .gallery-walk__next { grid-column: 2; grid-row: 2; width: 100%; }
+  .gallery-walk__support { gap: 8px; }
+}
+@media (max-width: 430px) {
+  .art-modal__top-actions { gap: 6px; }
+  .art-modal--gallery .art-modal__topbar { position: relative; }
+  .modal-text-button { font-size: 8px; padding: 8px; min-height: 35px; }
+  .gallery-walk__stops { width: 100%; justify-content: space-between; gap: 3px; }
+  .gallery-walk__stops button { flex: 1; min-width: 0; padding: 9px 2px; }
+  .gallery-walk__under-art { font-size: 9px; }
+  .gallery-walk__under-art span { font-size: 8px; }
+  .gallery-walk__support { font-size: 8px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition: none !important; animation: none !important; }
