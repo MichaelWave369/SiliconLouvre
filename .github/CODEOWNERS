@@ -9,3 +9,7 @@ src/data/foundingMasters.js @MichaelWave369
 src/data/curatorialEvents.json @MichaelWave369
 src/lib/curatorialLifecycle.js @MichaelWave369
 .github/ISSUE_TEMPLATE/curatorial-change.yml @MichaelWave369
+
+# Paired human originals and inspired responses require curator review
+src/data/domistikaDialogues.js @MichaelWave369
+src/assets/dialogues/ @MichaelWave369
