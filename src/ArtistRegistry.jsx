@@ -1,6 +1,6 @@
 import React from 'react';
-import { artists, futureResidencies, registryPolicy } from '../data/artistRegistry.js';
-import { publishedArtists } from '../lib/artistRegistry.js';
+import { artists, futureResidencies, registryPolicy } from './data/artistRegistry.js';
+import { publishedArtists } from './lib/artistRegistry.js';
 import './styles/registry.css';
 
 function FoundingMonogram({ initials }) {
