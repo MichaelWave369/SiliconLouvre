@@ -1,6 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { makeStudioSvg, normalizeStudioConfig, studioFilename, PRESETS, PALETTES } from './lib/studio.js';
 import './styles/studio.css';
+import { DRAFTS_STORAGE_KEY, MAX_DRAFTS, asRecipe, normalizeDraftName, parseDrafts, parseRecipe, removeDraft, saveDraft } from './lib/studioDrafts.js';
 import { DOMISTIKA_HANDOFF_KEY, DOMISTIKA_URL, bridgeSupported, buildDomistikaHandoff } from './lib/domistikaBridge.js';
 
 const modeNames = {
@@ -26,6 +27,17 @@ export default function OpticalArtStudio() {
   const [config,setConfig]=useState({...PRESETS.bloom});
   const [feedback,setFeedback]=useState('');
   const [handoffBusy,setHandoffBusy]=useState(false);
+  const [draftName,setDraftName]=useState('');
+  const [recipeText,setRecipeText]=useState('');
+  const [pendingDeleteId,setPendingDeleteId]=useState(null);
+  const [drafts,setDrafts]=useState(()=>{
+    try {return parseDrafts(localStorage.getItem(DRAFTS_STORAGE_KEY));}
+    catch {return [];}
+  });
+  useEffect(()=>{
+    try {localStorage.setItem(DRAFTS_STORAGE_KEY,JSON.stringify(drafts));}
+    catch {/* storage unavailable or quota restricted */}
+  },[drafts]);
   const svg=useMemo(()=>makeStudioSvg(config),[config]);
   const preview=useMemo(()=> 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg),[svg]);
 
@@ -50,7 +62,7 @@ export default function OpticalArtStudio() {
     setFeedback('SVG prepared for download. Your design remains in this browser.');
   }
   async function copyRecipe() {
-    const recipe=JSON.stringify({format:'silicon-louvre-studio/v1',...normalizeStudioConfig(config)},null,2);
+    const recipe=asRecipe(config);
     try {
       if(!navigator.clipboard?.writeText) throw Error('Clipboard unavailable');
       await navigator.clipboard.writeText(recipe);
@@ -58,6 +70,37 @@ export default function OpticalArtStudio() {
     } catch {
       setFeedback('Clipboard unavailable. Download the SVG to keep your design.');
     }
+  }
+
+  function saveCurrentDraft() {
+    const name=normalizeDraftName(draftName) || 'Untitled '+modeNames[config.mode];
+    const draft={
+      id:'draft-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,9),
+      name,savedAt:Date.now(),recipe:JSON.parse(asRecipe(config)),
+    };
+    setDrafts(current=>saveDraft(current,draft));
+    setDraftName('');
+    setPendingDeleteId(null);
+    setFeedback('Saved "'+name+'" to this browser. The shelf keeps up to '+MAX_DRAFTS+' designs.');
+  }
+  function loadSavedDraft(draft) {
+    const result=parseRecipe(JSON.stringify(draft.recipe));
+    if(!result.ok){setFeedback(result.error);return;}
+    setConfig(result.config);
+    setDraftName(draft.name);
+    setFeedback('Loaded "'+draft.name+'". You can edit and save it as a new draft.');
+  }
+  function loadPastedRecipe() {
+    const parsed=parseRecipe(recipeText);
+    if(!parsed.ok){setFeedback(parsed.error);return;}
+    setConfig(parsed.config);
+    setRecipeText('');
+    setFeedback('Recipe loaded. You can edit, save or send it to Domistika.');
+  }
+  function deleteDraft(id) {
+    setDrafts(current=>removeDraft(current,id));
+    setPendingDeleteId(null);
+    setFeedback('Draft removed from this browser. Exported SVG files are unaffected.');
   }
 
   async function sendToDomistika() {
@@ -136,6 +179,43 @@ export default function OpticalArtStudio() {
               {handoffBusy ? 'PREPARING TRANSFER…' : 'CONTINUE IN DOMISTIKA ↗'}
             </button>
           </div>
+          <section className="studio__drafts" aria-labelledby="studio-drafts-title">
+            <div className="studio__drafts-header">
+              <span className="eyebrow">04 / PRIVATE DESIGN SHELF</span>
+              <h4 id="studio-drafts-title">Keep the <em>spark.</em></h4>
+              <p>Save up to {MAX_DRAFTS} editable recipes in this browser, or reload a recipe copied earlier. Stored locally, never published.</p>
+            </div>
+            <div className="studio__draft-save">
+              <label htmlFor="studio-draft-name">NAME THIS DESIGN</label>
+              <input id="studio-draft-name" value={draftName} maxLength={60}
+                onChange={event=>setDraftName(event.target.value)}
+                placeholder="Untitled optical study"/>
+              <button type="button" onClick={saveCurrentDraft}>SAVE CURRENT DESIGN TO SHELF +</button>
+            </div>
+            <div className="studio__saved-list" aria-label="Saved designs">
+              {drafts.length===0
+                ? <p className="studio__empty-shelf">No saved designs yet. Your next idea can live here.</p>
+                : drafts.map(draft=><article key={draft.id} className="studio__saved-draft">
+                  <div><strong>{draft.name}</strong><small>{draft.recipe.mode} · {draft.recipe.palette} · {draft.recipe.rings} rings</small></div>
+                  {pendingDeleteId===draft.id
+                    ? <div className="studio__draft-controls" role="group" aria-label={'Confirm delete '+draft.name}>
+                      <button type="button" onClick={()=>deleteDraft(draft.id)}>CONFIRM DELETE</button>
+                      <button type="button" onClick={()=>setPendingDeleteId(null)}>CANCEL</button>
+                    </div>
+                    : <div className="studio__draft-controls">
+                      <button type="button" onClick={()=>loadSavedDraft(draft)}>LOAD</button>
+                      <button type="button" onClick={()=>setPendingDeleteId(draft.id)}>REMOVE</button>
+                    </div>}
+                </article>)}
+            </div>
+            <div className="studio__import-recipe">
+              <label htmlFor="studio-recipe-json">IMPORT A COPIED DESIGN RECIPE</label>
+              <textarea id="studio-recipe-json" rows={3} value={recipeText} maxLength={2048}
+                onChange={event=>setRecipeText(event.target.value)}
+                placeholder="Paste your silicon-louvre-studio/v1 JSON recipe here"/>
+              <button type="button" disabled={!recipeText.trim()} onClick={loadPastedRecipe}>LOAD RECIPE INTO STUDIO</button>
+            </div>
+          </section>
           <p className="studio__feedback" role="status" aria-live="polite">{feedback}</p>
           <p id="studio-bridge-details" className="studio__bridge-note">Explicit handoff only. Sends this SVG temporarily through shared-origin browser storage; Domistika shows a preview and asks you to back up your current project before you import. The import becomes a raster paint layer, not editable vector paths. Nothing is published.</p>
           <p className="studio__copyright-note">The image is yours to save and remix. This workshop does not submit designs to the museum's curated permanent collection. Publishing an exhibit requires review and permission.</p>
