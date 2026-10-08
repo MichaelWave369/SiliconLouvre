@@ -24,6 +24,8 @@ export function validateCuratedWorks(works) {
     if(seen.has(id)) errors.push('Duplicate curated work id: '+id);
     seen.add(id);
     if(work.status!=='approved') errors.push('Unapproved work in public catalog: '+id);
+    if(!Number.isInteger(work.revision) || work.revision<1 || work.revision>1000)
+      errors.push('Invalid catalog revision for '+id);
     for(const [field,min,max] of [
       ['title',3,80],['displayName',2,60],['description',20,650],
       ['alt',18,280],['process',20,900],['collaborators',12,450],
@@ -79,6 +81,7 @@ export function stageCurationRecord(packet, {issueUrl,reviewDate,notes} = {}) {
   const work={
     id,
     status:'approved',
+    revision:1,
     sourceSchema:SUBMISSION_SCHEMA,
     sourceIssue:issueUrl,
     title:packet.artwork.title,
