@@ -31,8 +31,17 @@ const rooms = [
     icon: '✳',
   },
   {
-    id: 'masters',
+    id: 'perception-lab',
     number: '03',
+    title: 'The Perception Lab',
+    detail: 'Three accessible experiments on contrast, perspective and apparent motion',
+    label: 'TRY THE EXPERIMENTS',
+    status: 'OPEN',
+    icon: '◉',
+  },
+  {
+    id: 'masters',
+    number: '04',
     title: 'The Founding Masters',
     detail: 'Original AI-generated artwork, separately archived from the SVG studies',
     label: 'VISIT FOUNDING MASTERS',
@@ -41,7 +50,7 @@ const rooms = [
   },
   {
     id: 'artists',
-    number: '04',
+    number: '05',
     title: 'The Artist Registry',
     detail: 'Who contributed, how the work was made, and how to propose art',
     label: 'MEET THE ARTISTS',
