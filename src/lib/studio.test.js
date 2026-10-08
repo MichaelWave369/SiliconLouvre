@@ -10,7 +10,7 @@ test('three artwork presets generate deterministic static SVG with correct motif
     assert.match(svg, /^<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg"/);
     assert.match(svg, /<\/svg>$/);
     assert.equal((svg.match(/data-motif="yes"/g) || []).length, config.rings * config.segments);
-    assert.doesNotMatch(svg, /<script|<animate|<foreignObject|https?:\/\//i);
+    assert.doesNotMatch(svg, /<script|<animate|<foreignObject|<image|<use/i);
   }
 });
 
