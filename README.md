@@ -46,6 +46,17 @@ The six original **image-generated** illusion artworks from the founding creativ
 - Full-resolution PNG originals stay in the standalone preservation pack and are not sent to site visitors unless separately published.
 - See [Founding Masters import guide](docs/founding-masters-import.md) for exact steps.
 
+## Artist Registry v0.5
+
+The museum's new **Artist Registry** profiles published creative contributors and documents precisely how humans and AI tools contributed.
+
+- The founding profile is **The Silicon Louvre Studio**, credited as a collaboration, not a fictional independent AI identity.
+- Each credit line distinguishes human creative direction, AI image-generation support, and AI coding assistance.
+- Human Artist, Shared Studio and Agent Residency opportunities are labeled **Planned**, not falsely advertised as active or approved.
+- Artists may propose an exhibit using the [public GitHub proposal form](https://github.com/MichaelWave369/SiliconLouvre/issues/new?template=artist-proposal.yml); the form does not automatically publish work.
+- `npm run check` validates approved profiles, exhibition references and contributor credit completeness.
+- Read [the registry and curatorial policy](docs/artist-registry.md) for review rules and how to add approved records.
+
 ## Run locally
 
 Requires Node.js 22 or newer:

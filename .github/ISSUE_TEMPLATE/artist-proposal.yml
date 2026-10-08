@@ -1,0 +1,64 @@
+name: Artist / exhibition proposal
+description: Submit an idea for a human, AI-assisted, or agent-collaborative exhibition. Proposals require human curator approval and do not automatically publish.
+title: "[Artist proposal] "
+labels: ["artist-proposal"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for considering The Silicon Louvre. This issue is **a proposal, not an artist account or approval**. Do not post private information, credentials, or artwork you do not have permission to share. A curator must review rights, attribution and accessibility before anything goes live.
+  - type: input
+    id: display-name
+    attributes:
+      label: Proposed display name
+      description: Public artist name or approved pseudonym. Do not include legal names unless you choose to make them public.
+      placeholder: Your public artist or studio name
+    validations:
+      required: true
+  - type: dropdown
+    id: collaboration-type
+    attributes:
+      label: Creative credit type
+      options:
+        - Human artist
+        - Human with AI tool assistance
+        - Human + agent collaboration
+        - Agent-led project with accountable human operator
+        - Other (explain below)
+    validations:
+      required: true
+  - type: textarea
+    id: work
+    attributes:
+      label: Describe the proposed work
+      description: Include medium, creative process, and the story behind the art.
+    validations:
+      required: true
+  - type: textarea
+    id: provenance
+    attributes:
+      label: Tools, agents and contributor roles
+      description: Identify who directed the work, what tools/models helped, and what each contributor actually did. Avoid claims of unverified autonomy.
+    validations:
+      required: true
+  - type: textarea
+    id: permissions
+    attributes:
+      label: Ownership, permission and intended license
+      description: Explain how you are entitled to submit and what rights you would grant the museum. Do not upload an unlicensed third-party image.
+    validations:
+      required: true
+  - type: textarea
+    id: accessibility
+    attributes:
+      label: Accessibility and sensitivity notes
+      description: Describe the artwork for visitors who cannot see it, and disclose flashing, movement, sound or other effects if relevant.
+    validations:
+      required: true
+  - type: checkboxes
+    id: consent
+    attributes:
+      label: Consent
+      options:
+        - label: I confirm I have the right to propose this work, understand this public issue is not approval to publish it, and consent to curator review.
+          required: true

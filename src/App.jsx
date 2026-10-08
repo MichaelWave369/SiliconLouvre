@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import IllusionArt from './art/IllusionArt.jsx';
 import OriginalMasters from './art/OriginalMasters.jsx';
+import ArtistRegistry from './ArtistRegistry.jsx';
 import './styles/masters.css';
 import { artworks, categories, exhibition, attribution } from './data/artworks.js';
 import { artworkIdFromHash, artworkPosition, artworkShareUrl, nextArtworkId } from './lib/gallery.js';
@@ -272,6 +273,7 @@ export default function App() {
         <nav aria-label="Main navigation">
           <a href="#exhibition">EXHIBITIONS</a>
           <a href="#collection">COLLECTION</a>
+          <a href="#artists">ARTISTS</a>
           <a href="#vision">OUR VISION</a>
         </nav>
         <a href="#exhibition" className="header-admission">ENTER MUSEUM <Arrow diagonal/></a>
@@ -334,6 +336,7 @@ export default function App() {
       </section>
 
       <OriginalMasters/>
+      <ArtistRegistry/>
 
       <section className="between container" aria-label="Museum philosophy">
         <span className="between__symbol">✳</span>
