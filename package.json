@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "node --test",
-    "check": "npm run test && npm run build"
+    "verify:masters": "node scripts/verify-masters.mjs",
+    "check": "npm run verify:masters && npm run test && npm run build"
   },
   "dependencies": {
     "react": "^19.2.0",

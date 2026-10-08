@@ -36,6 +36,16 @@ Build status and source: https://github.com/MichaelWave369/SiliconLouvre
 - Three clearly marked *planned* wings, not simulated live features.
 - Automated tests, Vite build, and GitHub Pages deployment workflow.
 
+## Exhibition 002: Founding Masters
+
+The six original **image-generated** illusion artworks from the founding creative session have a curated, provenance-checked import path. They are **not** the SVGs in Exhibition 001.
+
+- The Founding Masters wing appears in a graceful "awaiting installation" state until artwork files are imported.
+- After importing the six approved `.webp` files into `src/assets/masters/`, Vite discovers them automatically at build time; individual artwork cards, full-view museum plaques, keyboard navigation, and deep-link sharing become available.
+- A local integrity script checks the original WebP derivatives' SHA-256 fingerprints before every release build.
+- Full-resolution PNG originals stay in the standalone preservation pack and are not sent to site visitors unless separately published.
+- See [Founding Masters import guide](docs/founding-masters-import.md) for exact steps.
+
 ## Run locally
 
 Requires Node.js 22 or newer:
