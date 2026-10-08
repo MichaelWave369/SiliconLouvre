@@ -89,6 +89,14 @@ A free, self-paced learning room now accompanies the art. Three interactive stat
 - Visitor Passport room directory now links to the lab.
 - Full visitor and curatorial guidance: [The Perception Lab](docs/perception-lab.md).
 
+## Optical Art Studio v0.9 · Create Wing
+
+Visitors can now design their own **static, code-generated SVG optical art** in a free browser-local workshop. The studio includes Radial Bloom, Nested Gears and Iris Cathedral compositions, four color palettes, adjustable rings/motifs/rotation, immediate preview, SVG download, and a JSON recipe copy function.
+
+This studio does **not** publish user artwork to the permanent collection, request an account, track edits, or claim to be a stress/medical tool. The Museum Passport's room map links to the workshop, and artwork creation remains distinct from curator-approved exhibition credits.
+
+Read the [Optical Art Studio guide](docs/optical-art-studio.md) for controls, limitations and future interoperability ideas.
+
 ## Run locally
 
 Requires Node.js 22 or newer:
