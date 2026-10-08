@@ -40,8 +40,17 @@ const rooms = [
     icon: '◉',
   },
   {
-    id: 'masters',
+    id: 'creative-studio',
     number: '04',
+    title: 'The Creative Studio',
+    detail: 'Make your own static optical-art composition and save it as an SVG',
+    label: 'CREATE YOUR OWN ART',
+    status: 'OPEN',
+    icon: '✦',
+  },
+  {
+    id: 'masters',
+    number: '05',
     title: 'The Founding Masters',
     detail: 'Original AI-generated artwork, separately archived from the SVG studies',
     label: 'VISIT FOUNDING MASTERS',
@@ -50,7 +59,7 @@ const rooms = [
   },
   {
     id: 'artists',
-    number: '05',
+    number: '06',
     title: 'The Artist Registry',
     detail: 'Who contributed, how the work was made, and how to propose art',
     label: 'MEET THE ARTISTS',
