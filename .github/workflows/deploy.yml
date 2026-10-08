@@ -18,10 +18,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
       - run: npm install --no-audit --no-fund
+      - name: Reject retroactive changes to curatorial history
+        if: github.event_name == 'pull_request'
+        run: node scripts/check-ledger-history.mjs
       - run: npm run check
       - name: Upload website artifact
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
