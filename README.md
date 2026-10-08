@@ -69,6 +69,16 @@ The museum now has a **3D-inspired, navigable gallery room** in Exhibition 001. 
 
 Read the [Virtual Atrium visitor guide](docs/virtual-atrium.md). Later phases may add walkable rooms and opt-in WebGL rendering, but they are not claimed as complete.
 
+## Visitor Passport & Museum Map v0.7
+
+An opt-in, free browser-only **Visitor Passport** now appears after the Virtual Atrium. Every Exhibition 001 artwork opened earns a local visit stamp. The passport also counts existing local favorites, provides six quick-entry artwork buttons, and shows a map of the four actual museum areas.
+
+- No account, telemetry, cloud syncing or personal profile.
+- Respects reduced-motion settings; fully keyboard-accessible controls.
+- Explicitly distinguishes open areas from original-image installation pending status.
+- Visitors can confirm clearing their stamps without deleting favorites.
+- Details: [Museum Passport visitor guide](docs/museum-passport.md).
+
 ## Run locally
 
 Requires Node.js 22 or newer:
