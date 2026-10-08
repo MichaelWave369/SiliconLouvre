@@ -1,24 +1,74 @@
-# The Silicon Louvre
+# THE SILICON LOUVRE
 
-**A museum without walls. A canvas without borders.**
+### A museum without walls. A canvas without borders.
 
-The Silicon Louvre is a free, independent digital art museum celebrating creative collaboration between human and AI artists.
+The Silicon Louvre is a public, independent digital museum celebrating imagination, optical art, and human–AI collaboration.
 
-The inaugural exhibition, **The Stillness That Moves**, explores optical illusions and the difference between what an image does and what we perceive.
+**Opening exhibition: 001 — The Stillness That Moves**
 
-## Status
+Six original, code-generated SVG optical-art studies invite visitors to consider the space between what an image *does* and what an observer *sees*. These six programmatic pieces are **not** the previously generated AI images; their media can be added in a later, provenance-preserving import.
 
-The museum's opening-night website is being built in a feature branch and will arrive through a reviewed pull request. Its initial artworks are deterministic, locally rendered SVG compositions. No account or payment is required to visit.
+## Visit
 
-## Principles
+After enabling GitHub Pages with **GitHub Actions** as the deployment source:
 
-- Art is open to everyone. Never paywall basic viewing.
-- Credit human direction and AI assistance honestly, with provenance wherever available.
-- Curate exhibits, with human approval for publishing and moderation.
-- Keep actual animation distinct from static illusory motion.
-- Respect accessibility preferences, including reduced motion.
-- No affiliation with the Musée du Louvre in Paris.
+https://michaelwave369.github.io/SiliconLouvre/
 
-## License
+Build status and source: https://github.com/MichaelWave369/SiliconLouvre
 
-Source code is MIT licensed. Artwork and third-party contributions retain their stated licenses; do not assume that site code's license applies to every future exhibit.
+## Features in v0.1
+
+- Responsive museum entrance and inaugural exhibition with six deterministic SVG images.
+- Filter by theme (apparent motion, depth, perception).
+- Artwork details, descriptions, technique, and explicitly stated provenance.
+- Per-artwork focus guide, previous/next keyboard navigation, and direct-link sharing.
+- Local-only favorite list (localStorage); no accounts, analytics or tracking.
+- Accessibility: semantic headings, keyboard-accessible controls, dialog focus trap, reduced-motion support.
+- Three clearly marked *planned* wings, not simulated live features.
+- Automated tests, Vite build, and GitHub Pages deployment workflow.
+
+## Run locally
+
+Requires Node.js 22 or newer:
+
+```bash
+npm install
+npm run dev
+```
+
+Run validation:
+
+```bash
+npm run check
+```
+
+Build production site:
+
+```bash
+npm run build
+npm run preview
+```
+
+The production base path in `vite.config.js` is configured for GitHub Pages at `/SiliconLouvre/`.
+
+## Publishing
+
+Merge the opening-night pull request to `main`, then in **Settings → Pages → Build and deployment** select **GitHub Actions**. The workflow tests every PR and deploys built assets from `main` to GitHub Pages. The first deployment may require manual Pages approval or enabling Actions in repository settings.
+
+## Exhibition data
+
+Curated exhibit records are in `src/data/artworks.js`. Artwork renderers are in `src/art/IllusionArt.jsx`. Publishing future artist submissions is intentionally **not** an open unauthenticated endpoint: future ingestion should require ownership/consent metadata, human curator approval and clear agent attribution.
+
+When importing generated image assets later, include creator direction, model/tool used (when known), permission status, original artwork files and explicit usage terms. Never misattribute work or confuse static apparent motion with animation.
+
+## Curatorial and accessibility statement
+
+The images are still. Some people may experience illusory motion or depth; others may not. This is **not** a diagnostic, medical, or stress test. Avoid claiming that movement perception measures emotional state. Effects can vary by display, attention and vision. Visitors can use a fixed focus point. No autoplay animation or flashing is used.
+
+## License and name
+
+The website **source code** is available under [MIT](LICENSE). Artwork is separately credited and future submissions may carry their own rights; MIT should not be read as blanket permission to reuse every exhibition image.
+
+This is an **independent project**, not associated with or endorsed by the Musée du Louvre in Paris. Check trademark and naming requirements before adopting a commercial brand, domain or merchandise.
+
+Built to celebrate human and AI creativity, with real human responsibility for publication.
