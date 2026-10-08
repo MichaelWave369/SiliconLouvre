@@ -3,9 +3,11 @@ import IllusionArt from './art/IllusionArt.jsx';
 import OriginalMasters from './art/OriginalMasters.jsx';
 import ArtistRegistry from './ArtistRegistry.jsx';
 import VirtualAtrium from './VirtualAtrium.jsx';
+import MuseumPassport from './MuseumPassport.jsx';
 import './styles/masters.css';
 import { artworks, categories, exhibition, attribution } from './data/artworks.js';
 import { artworkIdFromHash, artworkPosition, artworkShareUrl, nextArtworkId } from './lib/gallery.js';
+import { VISIT_STORAGE_KEY, parseVisited, addVisit } from './lib/passport.js';
 
 function Arrow({ diagonal = false }) {
   return <span aria-hidden="true" className="arrow">{diagonal ? '↗' : '→'}</span>;
@@ -227,6 +229,10 @@ export default function App() {
   const returnToRef = useRef('collection');
   const [viewMode, setViewMode] = useState('details');
   const [saved, setSaved] = useState(readSaved);
+  const [visited, setVisited] = useState(() => {
+    try { return parseVisited(localStorage.getItem(VISIT_STORAGE_KEY), artworks); }
+    catch { return []; }
+  });
   const [selectedId, setSelectedId] = useState(() => {
     return artworkIdFromHash(artworks, window.location.hash);
   });
@@ -236,6 +242,12 @@ export default function App() {
   useEffect(() => {
     try { localStorage.setItem('silicon-louvre-favorites-v1', JSON.stringify(saved)); } catch { /* private browsing */ }
   }, [saved]);
+  useEffect(() => {
+    try { localStorage.setItem(VISIT_STORAGE_KEY, JSON.stringify(visited)); } catch { /* private browsing */ }
+  }, [visited]);
+  useEffect(() => {
+    if (selectedId) setVisited((current) => addVisit(current, selectedId, artworks));
+  }, [selectedId]);
   useEffect(() => {
     function onHashChange() {
       const id = artworkIdFromHash(artworks, window.location.hash);
@@ -277,6 +289,7 @@ export default function App() {
           <a href="#exhibition">EXHIBITIONS</a>
           <a href="#atrium">ATRIUM</a>
           <a href="#collection">COLLECTION</a>
+          <a href="#passport">PASSPORT</a>
           <a href="#artists">ARTISTS</a>
           <a href="#vision">OUR VISION</a>
         </nav>
@@ -322,12 +335,15 @@ export default function App() {
         <div className="exhibition-intro__body">
           <div><span className="display-index">01 / THE INAUGURAL EXHIBITION</span><h2 id="exhibition-title">The Stillness<br/><em>That Moves.</em></h2></div>
           <div className="exhibition-intro__aside"><p>Nothing here is moving. Yet your eyes may tell you otherwise. Six original studies explore the strange, beautiful space between sensation and reality.</p>
-          <div className="exhibition-intro__links"><button className="button-gold" onClick={startTour}>BEGIN THE GALLERY WALK <Arrow diagonal/></button><a className="text-link" href="#atrium">EXPLORE THE VIRTUAL ATRIUM <Arrow diagonal/></a><a className="text-link" href="#collection">BROWSE THE WORKS <Arrow/></a></div></div>
+          <div className="exhibition-intro__links"><button className="button-gold" onClick={startTour}>BEGIN THE GALLERY WALK <Arrow diagonal/></button><a className="text-link" href="#atrium">EXPLORE THE VIRTUAL ATRIUM <Arrow diagonal/></a><a className="text-link" href="#collection">BROWSE THE WORKS <Arrow/></a><a className="text-link" href="#passport">VISITOR PASSPORT <Arrow diagonal/></a></div></div>
         </div>
         <div className="exhibition-intro__metrics"><div><strong>06</strong><span>ORIGINAL STUDIES</span></div><div><strong>03</strong><span>PERCEPTUAL THEMES</span></div><div><strong>∞</strong><span>WAYS TO SEE</span></div></div>
       </section>
 
       <VirtualAtrium onEnterWork={(id) => openWork(id, 'gallery', 'atrium')}/>
+      <MuseumPassport visited={visited} favorites={saved}
+        onOpenArtwork={(id) => openWork(id, 'gallery', 'passport')}
+        onClearVisits={() => setVisited([])}/>
 
       <section id="collection" className="collection container" aria-labelledby="collection-title">
         <div className="collection__heading"><div><span className="eyebrow">THE COLLECTION / SL.001</span><h2 id="collection-title">Works on <em>view.</em></h2></div><div className="collection__aside"><p>Take your time. Look closer. Your perception is part of the exhibition.</p><button className="text-link collection__tour-link" onClick={startTour}>TAKE THE GALLERY WALK <Arrow diagonal/></button></div></div>
