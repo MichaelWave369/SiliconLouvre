@@ -4,3 +4,8 @@
 src/data/curatedWorks.js @MichaelWave369
 src/data/artistRegistry.js @MichaelWave369
 src/data/foundingMasters.js @MichaelWave369
+
+# Curator owns the public change history and review request form
+src/data/curatorialEvents.json @MichaelWave369
+src/lib/curatorialLifecycle.js @MichaelWave369
+.github/ISSUE_TEMPLATE/curatorial-change.yml @MichaelWave369

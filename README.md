@@ -129,6 +129,20 @@ The review process begins with the Creative Studio's Submission Desk and public 
 
 See [Curatorial Publishing Workflow](docs/curatorial-publishing.md) for the admission steps, legal/attribution caveats and acceptance plan.
 
+## Curatorial Decision Ledger v1.2
+
+Community Gallery artwork now has a **reviewed publication lifecycle**, not just a one-time approval.
+
+- The public curator ledger starts empty, then records real publication, revision and withdrawal decisions.
+- Exhibition 003 only renders a work when its approved catalog record matches the latest public decision and revision.
+- Artists can propose corrections or withdrawals through the [public curatorial change form](https://github.com/MichaelWave369/SiliconLouvre/issues/new?template=curatorial-change.yml). Private identity evidence must **not** be posted in public issues.
+- `npm run stage:curatorial-change -- ... --ack-human-review` prints the next decision record after human review. It does not mutate the repository.
+- PR CI compares the public decision history against `main` and rejects rewriting or deleting past decisions. Normal `npm run check` validates sequential lifecycle state.
+- Withdrawing removes the artwork from the current museum gallery; Git history and caches can still retain previously published content. This is **not guaranteed erasure**.
+- CODEOWNERS review requests and branch protections still require correct GitHub repository configuration.
+
+See [Curatorial publishing and withdrawal policy](docs/curatorial-publishing.md).
+
 ## Run locally
 
 Requires Node.js 22 or newer:

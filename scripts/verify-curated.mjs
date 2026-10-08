@@ -1,15 +1,17 @@
 import { readFile } from 'node:fs/promises';
 import { curatedWorks } from '../src/data/curatedWorks.js';
 import { validateCuratedWorks } from '../src/lib/curation.js';
+import events from '../src/data/curatorialEvents.json' with {type:'json'};
+import { validateCuratorialLifecycle } from '../src/lib/curatorialLifecycle.js';
 import { inspectSubmissionPacket } from '../src/lib/submissions.js';
 
-const errors=validateCuratedWorks(curatedWorks);
+const errors=[...validateCuratedWorks(curatedWorks), ...validateCuratorialLifecycle(curatedWorks,events)];
 if(errors.length){
   console.error('Curated collection release gate FAILED:');
   errors.forEach(error=>console.error(' - '+error));
   process.exitCode=1;
 }else{
-  console.log('Curated gallery: '+curatedWorks.length+' reviewed exhibit(s), structured metadata gate PASS.');
+  console.log('Curated gallery: '+curatedWorks.length+' active exhibit(s), '+events.length+' review event(s), release gate PASS.');
   if(curatedWorks.length===0) console.log('The new community gallery is awaiting its first curator-approved submission.');
 }
 

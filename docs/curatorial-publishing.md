@@ -24,7 +24,7 @@ GitHub Actions validates the **structure** of approval records and rejects unrev
 
    The command prints an example catalog record. It **does not modify repository files, open a PR, publish art, or verify the curator's identity**. Replace the example issue URL and notes with the actual reviewed evidence.
 
-6. **Open an approval PR.** Add the record to `curatedWorks` in `src/data/curatedWorks.js` using a unique ID. Include the proposal issue URL and curator decision record. Review all publicly visible words; do not paste sensitive information.
+6. **Open an approval PR.** Add the record to `curatedWorks` in `src/data/curatedWorks.js` using a unique ID. **In the same PR, append the paired `publish` event (revision 1) to `src/data/curatorialEvents.json` using the output from `stage:curated`.** The release gate requires a public decision for every displayed piece. Include the proposal issue URL and curator decision record. Review all publicly visible words; do not paste sensitive information.
 7. **Run release validation.** `npm run verify:curated` checks approval status, references, source recipe, valid creative credits, license category and review receipt. `npm run check` also runs all museum tests, founding-image integrity checks and production build.
 8. **Human approves and merges.** Confirm the decision in a PR review, ensure green checks, and merge through GitHub's protected branch rules. GitHub Pages then renders the work using the same deterministic SVG generator as the original creator kit, avoiding third-party remote image uploads and active SVG content.
 
@@ -39,6 +39,29 @@ Exhibition 003 displays only data in the curated collection catalog. A work rece
 - A link to the source proposal issue, when appropriate.
 
 The initial exhibit catalog is empty: no applicant or AI agent receives automatic artist status, and a public proposal never appears in the collection unless its approved metadata is intentionally merged.
+
+## Corrections, revisions and withdrawal requests
+
+Curatorial responsibility continues after publication. Anyone can propose corrections or report a rights issue through the public [curatorial change form](https://github.com/MichaelWave369/SiliconLouvre/issues/new?template=curatorial-change.yml). **Public GitHub issues are not appropriate for confidential identity or ownership evidence.** Artists should not post sensitive documents, home addresses, contact details, or private communications there. The curator must independently verify authority before acting.
+
+For an approved change, the human curator can generate a **proposal for a revision or withdrawal event** using the following command, which has no publishing permissions:
+
+```sh
+npm run stage:curatorial-change -- artwork-id withdraw 2026-10-08 "Creator-requested withdrawal independently verified by the curator." --ack-human-review
+```
+
+Replace the artwork ID, date and note with the actual, reviewed evidence. For a correction, use `revise` instead of `withdraw`. The helper prints the next revision and an event entry; **it does not edit files, verify ownership, or remove any artwork**.
+
+A single curator-reviewed PR must then:
+
+- **Revision:** Append a `revise` event with the next version number and update the matching public `curatedWorks` record to that revision. Review the amended artwork, description, provenance and publication rights.
+- **Withdrawal:** Append a `withdraw` event with the next version number and remove the matching `curatedWorks` record. After merge and deployment, the artwork no longer appears in the current exhibition. Reinstatement requires a separately designed consent-and-review process and is intentionally rejected by this release.
+
+`npm run verify:curated` checks event integrity, sequential revisions, matching current catalog state, the source proposal issue and absence of withdrawn works from public display. Pull-request CI also compares `src/data/curatorialEvents.json` with `origin/main`: past decisions must remain in order and unmodified. New events can be appended only.
+
+**Limits of public history:** This is a reviewable GitHub-backed ledger, **not an immutable blockchain**. Branch protection and code-owner approvals must be enabled in GitHub Settings for meaningful enforcement. Merged/public Git commits, external caches and forks may retain previously published content even after withdrawal. The website intentionally hides a withdrawn work's image and creator information in its public decision feed, but the underlying repository history cannot promise full erasure. Sensitive takedown requests may need private handling beyond the public issue form.
+
+The public ledger begins empty and is not seeded with fictitious reviews. Each real decision lists its date, action, revision and a minimally disclosed explanation.
 
 ## Technical contract
 
