@@ -11,7 +11,8 @@
     "verify:masters": "node scripts/verify-masters.mjs",
     "check": "npm run verify:masters && npm run verify:curated && npm run test && npm run build",
     "inspect:submission": "node scripts/inspect-submission.mjs",
-    "verify:curated": "node scripts/verify-curated.mjs"
+    "verify:curated": "node scripts/verify-curated.mjs",
+    "stage:curated": "node scripts/stage-curated.mjs"
   },
   "dependencies": {
     "react": "^19.2.0",
