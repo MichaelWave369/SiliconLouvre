@@ -23,7 +23,7 @@ export function blendOpacityStyle(value) {
 
 export function comparisonStatus(mode,value) {
   const n=clampComparisonValue(value);
-  if(mode==='reveal')return n+'% of the AI-inspired response revealed from the left.';
+  if(mode==='reveal')return n+'% original drawing visible on the left, '+(100-n)+'% AI-inspired response visible on the right.';
   if(mode==='blend')return 'AI-inspired image opacity '+n+'%; original drawing is underneath.';
   return 'Both complete artworks are visible side by side.';
 }
