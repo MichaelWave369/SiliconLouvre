@@ -12,7 +12,7 @@ const MODE_INFO={
   reveal:{
     title:'The Reveal',
     label:'DRAG TO REVEAL',
-    help:'Drag the divider to compare the original on the left with the AI-inspired response on the right.'],
+    help:'Drag the divider to compare the original on the left with the AI-inspired response on the right.',
   },
   blend:{
     title:'The Superposition',
@@ -70,7 +70,7 @@ export default function DialogueComparisonStation({pair,originalUrl,inspiredUrl,
               <span>↔</span>
             </div>
             <input type="range" className="dialogue-compare__image-range"
-              aria-label={'Reveal inspired artwork in '+pair.title}
+              aria-label={'Adjust original-versus-inspired divider for '+pair.title}
               aria-describedby={controlsId} min="0" max="100" step="1" value={reveal}
               aria-valuetext={comparisonStatus('reveal',reveal)}
               onChange={event=>setReveal(clampComparisonValue(event.target.value))}/>
