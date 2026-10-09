@@ -23,7 +23,7 @@ test('compare slider is bounded and keeps intuitive endpoints',()=>{
   assert.deepEqual(blendOpacityStyle(100),{opacity:1});
 });
 test('screen-reader instructions identify the actual displayed image arrangement',()=>{
-  assert.match(comparisonStatus('reveal',35),/35%.*left/);
+  assert.match(comparisonStatus('reveal',35),/35% original.*left.*65% AI-inspired.*right/);
   assert.match(comparisonStatus('blend',85),/opacity 85%/);
   assert.match(comparisonStatus('side-by-side',50),/side by side/);
 });
