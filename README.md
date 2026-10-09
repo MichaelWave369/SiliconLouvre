@@ -153,6 +153,14 @@ The wing includes mobile-responsive paired cards, a keyboard-accessible full-siz
 
 Read the [Domistika Dialogues import and exhibition guide](docs/domistika-dialogues.md) for the exhibition's broader rules.
 
+## Dialogue Comparison Station · PR #18
+
+The **Domistika Dialogues** founding collection now has a three-mode interpretive workbench inside each artwork detail viewer: **side-by-side**, a **draggable original-left/inspired-right reveal**, and an **adjustable transparency overlay**. The station uses only the two already approved, integrity-checked image files, with no image generation, uploads, tracking or changes to exhibition provenance.
+
+Native range inputs make the reveal and blend controls accessible on mobile and by keyboard. Left/Right keys on a focused comparison slider adjust the slider rather than navigating to another artwork. The full original and inspired text descriptions and separate credits remain available.
+
+See [Dialogue Comparison Station visitor guide](docs/dialogue-comparison-station.md).
+
 ## Run locally
 
 Requires Node.js 22 or newer:

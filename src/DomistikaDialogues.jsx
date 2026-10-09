@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { domistikaDialoguesExhibition, domistikaDialoguePairs } from './data/domistikaDialogues.js';
 import { dialogueFromHash, installedDialoguePairs, nextDialogueId } from './lib/dialogues.js';
 import './styles/dialogues.css';
+import DialogueComparisonStation from './DialogueComparisonStation.jsx';
 
 // All media remains local to the repository. No user URLs, remote images,
 // runtime fetches or fabricated AI images can enter the exhibition.
@@ -51,8 +52,17 @@ function DialogueViewer({pair,onClose,onNext,onPrevious}) {
       if(event.key==='Escape'){
         event.preventDefault();callbacks.current.onClose();return;
       }
-      if(event.key==='ArrowLeft' && !event.repeat)callbacks.current.onPrevious();
-      if(event.key==='ArrowRight' && !event.repeat)callbacks.current.onNext();
+      // Native ranges use Left/Right for fine adjustment. Never steal
+      // keyboard arrows from a focused comparison slider or form control.
+      const inputTarget=event.target instanceof Element
+        ? event.target.closest('input,textarea,select,[role="slider"],[contenteditable="true"]')
+        : null;
+      if(!inputTarget && event.key==='ArrowLeft' && !event.repeat){
+        event.preventDefault();callbacks.current.onPrevious();
+      }
+      if(!inputTarget && event.key==='ArrowRight' && !event.repeat){
+        event.preventDefault();callbacks.current.onNext();
+      }
       if(event.key==='Tab') {
         const links=[...dialogRef.current.querySelectorAll('button:not([disabled]),a[href]')]
           .filter(node=>node.getClientRects().length>0);
@@ -87,7 +97,10 @@ function DialogueViewer({pair,onClose,onNext,onPrevious}) {
           <h2>{pair.title}</h2>
           <p>{pair.curatorialNote}</p>
         </header>
-        <PairedArt pair={pair} large/>
+        <DialogueComparisonStation pair={pair}
+          originalUrl={imageUrl(pair.original.file)}
+          inspiredUrl={imageUrl(pair.inspired.file)}
+          sideBySide={<PairedArt pair={pair} large/>}/>
         <div className="dialogues__plaque-grid">
           <div><span>THE FIRST VOICE</span><p>{pair.originalCredit} · {pair.provenance.originalTool}</p></div>
           <div><span>THE INSPIRED RESPONSE</span><p>{pair.inspiredCredit} · {pair.provenance.inspiredTool}</p></div>
