@@ -149,7 +149,9 @@ See [Curatorial publishing and withdrawal policy](docs/curatorial-publishing.md)
 
 The wing includes mobile-responsive paired cards, a keyboard-accessible full-size viewer, distinct media alt descriptions, creative process plaques, Museum Passport and navigation integration, and a strict `npm run verify:dialogues` media integrity check included in `npm run check`. Only locally installed curator-approved pairs are ever displayed. No fake source artworks, unreviewed submissions, or remote media are published.
 
-Read the [Domistika Dialogues import and exhibition guide](docs/domistika-dialogues.md) to install the first authentic original/inspired sets.
+**Founding Collection (PR #17):** Four matched human originals and ChatGPT Sol 5.6 inspired responses, personally paired and titled with the original artist's permission: *Chromatic Gear Cathedral*, *The Ninefold Trickster*, *Orbit of a Thousand Hinges*, and *The Eye That Blooms*. The release requires all eight locally installed, SHA-256-verified WebP images. [View original file mappings and installation checklist](docs/domistika-dialogues-founding-collection.md).
+
+Read the [Domistika Dialogues import and exhibition guide](docs/domistika-dialogues.md) for the exhibition's broader rules.
 
 ## Run locally
 
