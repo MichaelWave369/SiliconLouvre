@@ -76,7 +76,7 @@ export default function DialogueComparisonStation({pair,originalUrl,inspiredUrl,
               onChange={event=>setReveal(clampComparisonValue(event.target.value))}/>
           </>}
           <span className="dialogue-compare__corner-label dialogue-compare__corner-label--left">ORIGINAL · DOMISTIKA</span>
-          <span className="dialogue-compare__corner-label dialogue-compare__corner-label--right">INSPIRED · SOL 5.6</span>
+          <span className="dialogue-compare__corner-label dialogue-compare__corner-label--right">INSPIRED · AI RESPONSE</span>
         </div>}
     </div>
 
