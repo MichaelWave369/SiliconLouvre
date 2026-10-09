@@ -8,7 +8,7 @@ This museum wing places a human-created Domistika drawing beside the AI-inspired
 
 PR #16 builds the public wing: museum navigation and Passport integration, elegant two-frame waiting wall, mobile-friendly paired cards, full-size modal viewer, original-vs-inspired attribution, alt text, curatorial notes, optional art navigation, and release validation.
 
-**The first version deliberately contains no artwork pairs** because no authentic pair files have yet been supplied and approved for publication. The earlier architectural concept render is **not** the source art; it must not appear as an actual original drawing. The empty-state frames are decorative CSS shapes and are visibly marked as awaiting the real works.
+**PR #16 deliberately began with no artwork pairs.** PR #17 contains four creator-approved matched artwork records. The actual image files must be committed on the same PR branch before the release gate will pass; see [Founding Collection source and upload guide](domistika-dialogues-founding-collection.md). The earlier architectural concept render is **not** the source art; it must not appear as an actual original drawing. The empty-state frames are decorative CSS shapes and are visibly marked as awaiting the real works.
 
 ## Prepare the first artwork pairs
 
