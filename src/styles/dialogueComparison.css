@@ -16,7 +16,11 @@
 .dialogue-compare__layered {position:relative;max-width:840px;aspect-ratio:1;margin:0 auto;border:clamp(8px,1.5vw,16px) solid #78573d;background:#0e0c15;overflow:hidden;isolation:isolate;box-shadow:0 18px 50px #0905098c;}
 .dialogue-compare__layered img {display:block;width:100%;height:100%;object-fit:fill;user-select:none;pointer-events:none;}
 .dialogue-compare__layered-original {position:absolute;inset:0;}
-.dialogue-compare__layered-inspired {position:absolute;inset:0;}
+/* Blend the inspired artwork together with an opaque, museum-neutral matte.
+   If a source WebP has transparent pixels, a 100% blend must STILL hide
+   the original underneath rather than accidentally reveal it. */
+.dialogue-compare__layered-inspired {position:absolute;inset:0;background:#0e0c15;}
+.dialogue-compare__layered-inspired img {display:block;width:100%;height:100%;object-fit:fill;user-select:none;pointer-events:none;}
 .dialogue-compare__layered--reveal .dialogue-compare__layered-original {z-index:1;}
 .dialogue-compare__layered--reveal .dialogue-compare__layered-inspired {z-index:0;}
 .dialogue-compare__layered--blend .dialogue-compare__layered-original {z-index:0;}
