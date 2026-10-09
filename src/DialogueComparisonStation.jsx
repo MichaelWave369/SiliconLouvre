@@ -1,5 +1,5 @@
 import React, { useEffect, useId, useState } from 'react';
-import { COMPARISON_MODES, clampComparisonValue, comparisonStatus,
+import { COMPARISON_MODES, normalizeComparisonMode, clampComparisonValue, comparisonStatus,
   blendOpacityStyle, revealClipStyle } from './lib/comparison.js';
 import './styles/dialogueComparison.css';
 
@@ -21,8 +21,8 @@ const MODE_INFO={
   },
 };
 
-export default function DialogueComparisonStation({pair,originalUrl,inspiredUrl,sideBySide}) {
-  const [mode,setMode]=useState('side-by-side');
+export default function DialogueComparisonStation({pair,originalUrl,inspiredUrl,sideBySide,mode:requestedMode,onModeChange}) {
+  const mode=normalizeComparisonMode(requestedMode);
   const [reveal,setReveal]=useState(50);
   const [blend,setBlend]=useState(50);
   const headingId=useId();
@@ -50,7 +50,7 @@ export default function DialogueComparisonStation({pair,originalUrl,inspiredUrl,
     <div className="dialogue-compare__modes" role="group" aria-label="Comparison view">
       {COMPARISON_MODES.map(choice=><button type="button" key={choice}
         className={mode===choice?'is-active':''} aria-pressed={mode===choice}
-        onClick={()=>setMode(choice)}>
+        onClick={()=>onModeChange(choice)}>
         <span className="dialogue-compare__mode-index">{choice==='side-by-side'?'01':choice==='reveal'?'02':'03'}</span>
         {MODE_INFO[choice].label}
       </button>)}
@@ -62,9 +62,10 @@ export default function DialogueComparisonStation({pair,originalUrl,inspiredUrl,
           <img className="dialogue-compare__layered-original" src={originalUrl}
             alt="" aria-hidden="true" decoding="async"
             style={mode==='reveal'?revealClipStyle(reveal):undefined}/>
-          <img className="dialogue-compare__layered-inspired" src={inspiredUrl}
-            alt="" aria-hidden="true" decoding="async"
-            style={mode==='blend'?blendOpacityStyle(blend):undefined}/>
+          <div className="dialogue-compare__layered-inspired" aria-hidden="true"
+            style={mode==='blend'?blendOpacityStyle(blend):undefined}>
+            <img src={inspiredUrl} alt="" decoding="async"/>
+          </div>
           {mode==='reveal' && <>
             <div className="dialogue-compare__split" style={{left:reveal+'%'}} aria-hidden="true">
               <span>↔</span>
@@ -96,7 +97,7 @@ export default function DialogueComparisonStation({pair,originalUrl,inspiredUrl,
             aria-valuetext={comparisonStatus(mode,activeValue)}
             onChange={event=>setActiveValue(clampComparisonValue(event.target.value))}/>
           <div className="dialogue-compare__range-ends" aria-hidden="true">
-            <span>{mode==='reveal'?'INSPIRED':'ORIGINAL'}</span><span>{mode==='reveal'?'ORIGINAL':'INSPIRED'}</span>
+            <span>{mode==='reveal'?'DIVIDER AT LEFT':'ORIGINAL ONLY'}</span><span>{mode==='reveal'?'DIVIDER AT RIGHT':'INSPIRED ONLY'}</span>
           </div>
           <button type="button" className="dialogue-compare__reset"
             onClick={()=>setActiveValue(50)}>RESET TO 50%</button>
