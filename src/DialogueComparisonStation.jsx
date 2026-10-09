@@ -12,7 +12,7 @@ const MODE_INFO={
   reveal:{
     title:'The Reveal',
     label:'DRAG TO REVEAL',
-    help:'Move the divider to reveal more of the AI-inspired response on the left and the original on the right.',
+    help:'Drag the divider to compare the original on the left with the AI-inspired response on the right.'],
   },
   blend:{
     title:'The Superposition',
@@ -58,12 +58,13 @@ export default function DialogueComparisonStation({pair,originalUrl,inspiredUrl,
 
     <div className="dialogue-compare__artworks" aria-label={MODE_INFO[mode].title}>
       {mode==='side-by-side' ? sideBySide :
-        <div className={'dialogue-compare__layered'+(mode==='blend'?' dialogue-compare__layered--blend':'')}>
+        <div className={'dialogue-compare__layered'+(mode==='blend'?' dialogue-compare__layered--blend':' dialogue-compare__layered--reveal')}>
           <img className="dialogue-compare__layered-original" src={originalUrl}
-            alt="" aria-hidden="true" decoding="async"/>
+            alt="" aria-hidden="true" decoding="async"
+            style={mode==='reveal'?revealClipStyle(reveal):undefined}/>
           <img className="dialogue-compare__layered-inspired" src={inspiredUrl}
             alt="" aria-hidden="true" decoding="async"
-            style={mode==='reveal'?revealClipStyle(reveal):blendOpacityStyle(blend)}/>
+            style={mode==='blend'?blendOpacityStyle(blend):undefined}/>
           {mode==='reveal' && <>
             <div className="dialogue-compare__split" style={{left:reveal+'%'}} aria-hidden="true">
               <span>↔</span>
@@ -87,7 +88,7 @@ export default function DialogueComparisonStation({pair,originalUrl,inspiredUrl,
       {mode!=='side-by-side' &&
         <div className="dialogue-compare__control">
           <label htmlFor="dialogue-compare-percent">
-            <span>{mode==='reveal'?'INSPIRED IMAGE REVEALED':'INSPIRED IMAGE OPACITY'}</span>
+            <span>{mode==='reveal'?'REVEAL DIVIDER · ORIGINAL LEFT':'INSPIRED IMAGE OPACITY'}</span>
             <output htmlFor="dialogue-compare-percent">{activeValue}%</output>
           </label>
           <input id="dialogue-compare-percent" type="range"
@@ -95,7 +96,7 @@ export default function DialogueComparisonStation({pair,originalUrl,inspiredUrl,
             aria-valuetext={comparisonStatus(mode,activeValue)}
             onChange={event=>setActiveValue(clampComparisonValue(event.target.value))}/>
           <div className="dialogue-compare__range-ends" aria-hidden="true">
-            <span>ORIGINAL</span><span>INSPIRED</span>
+            <span>{mode==='reveal'?'INSPIRED':'ORIGINAL'}</span><span>{mode==='reveal'?'ORIGINAL':'INSPIRED'}</span>
           </div>
           <button type="button" className="dialogue-compare__reset"
             onClick={()=>setActiveValue(50)}>RESET TO 50%</button>
