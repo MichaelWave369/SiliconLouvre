@@ -97,7 +97,7 @@ function DialogueViewer({pair,onClose,onNext,onPrevious}) {
           <h2>{pair.title}</h2>
           <p>{pair.curatorialNote}</p>
         </header>
-        <DialogueComparisonStation key={pair.id} pair={pair}
+        <DialogueComparisonStation pair={pair}
           originalUrl={imageUrl(pair.original.file)}
           inspiredUrl={imageUrl(pair.inspired.file)}
           sideBySide={<PairedArt pair={pair} large/>}/>
