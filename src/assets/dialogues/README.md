@@ -1,16 +1,18 @@
-# Exhibition 004: Domistika Dialogues
+# Exhibition 004: Domistika Dialogues · Founding Collection
 
-This directory intentionally starts with no real art assets. The museum needs the **actual approved Domistika drawing** and its **actual AI-inspired response** before an artwork pair is installed.
+This feature branch introduces four owner-approved original / inspired artwork pairs, each from the artist's real `domistika images.zip` source archive.
 
-When a complete pair is supplied and permission to exhibit is confirmed:
+**Artwork binary files are required before merging.** This directory must contain these eight files, alongside this README:
 
-1. Prepare static, optimized WebP (or approved PNG/JPEG) files for each side.
-2. Name them `<pair-slug>-original.webp` and `<pair-slug>-inspired.webp`.
-3. Record SHA-256 hashes of the exact files and an approved metadata record in `src/data/domistikaDialogues.js`.
-4. Credit **the human original** and **the specific AI tool or model used for the inspired response** separately.
-5. Open a curator-reviewed PR containing both files, metadata and permission/provenance notes.
-6. Run `npm run verify:dialogues` and `npm run check`, and visually inspect each pair after deployment.
+- `chromatic-gear-cathedral-original.webp`
+- `chromatic-gear-cathedral-inspired.webp`
+- `the-ninefold-trickster-original.webp`
+- `the-ninefold-trickster-inspired.webp`
+- `orbit-of-a-thousand-hinges-original.webp`
+- `orbit-of-a-thousand-hinges-inspired.webp`
+- `the-eye-that-blooms-original.webp`
+- `the-eye-that-blooms-inspired.webp`
 
-No third-party inspiration images or AI-generated mockups may be presented as authentic user originals. The museum's concept artwork is **not** one of the approved exhibition pairs.
+Upload **only the extracted WebP images**, not the ZIP or the original high-resolution PNGs. GitHub Actions checks presence, size, image headers and exact binary SHA-256 hashes recorded in `src/data/domistikaDialogues.js`. An absent/mismatched file must block merge.
 
-See `docs/domistika-dialogues.md` for full requirements.
+Full titles, curatorial notes, creative roles, original-source filename mappings, preservation hashes and visitor acceptance checklist are in `docs/domistika-dialogues-founding-collection.md`.
