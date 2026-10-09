@@ -10,6 +10,20 @@ This interactive museum station allows visitors to investigate the visual conver
 
 The mode can be switched using clearly labeled buttons. It persists as you navigate to another pair. The reveal/blend sliders reset to 50% on navigation, avoiding surprising settings from an earlier artwork. A **Reset to 50%** button returns the slider to midpoint.
 
+## Live QA follow-up: endpoint and navigation reliability
+
+The first deployed station (PR #18) was inspected in a live browser, and the report raised three concerns:
+
+1. Comparison mode appeared to revert to side-by-side when navigating to another artwork.
+2. Inspired blend at 100% still appeared to show parts of the original.
+3. The 0% reveal endpoint was described inconsistently in the browser report. A visual retest should confirm the semantics.
+
+This release responds by holding the selected mode in **gallery-level React state** rather than within the individual artwork station, and by blending an **opaque neutral matte plus the inspired artwork** on top of the original. This ensures even transparent image regions cannot expose the original when inspired opacity is 100%.
+
+For the reveal divider, 0% means the slider sits at the left and only the inspired image is visible; 50% means original left/inspired right; 100% means only the original is visible. Two layers and a CSS clip path achieve this without altering the source files.
+
+**Automated tests verify the endpoint calculations and the wired component/CSS contracts; they are not a substitute for a live browser retest.** After merge, reopen Chromatic Gear Cathedral and exercise all 0/50/100 endpoints, then navigate to The Ninefold Trickster while in Blend mode. The mode should remain Blend with its slider reset to the midpoint.
+
 ## Interaction and accessibility
 
 - The reveal image itself carries a native, transparent range slider so you can drag the vertical divider directly with mouse or touch.
