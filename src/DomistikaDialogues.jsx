@@ -38,7 +38,7 @@ function PairedArt({pair,large=false}) {
   </div>;
 }
 
-function DialogueViewer({pair,onClose,onNext,onPrevious}) {
+function DialogueViewer({pair,onClose,onNext,onPrevious,compareMode,onCompareModeChange}) {
   const dialogRef=useRef(null);
   const closeRef=useRef(null);
   const callbacks=useRef({onClose,onNext,onPrevious});
@@ -97,7 +97,7 @@ function DialogueViewer({pair,onClose,onNext,onPrevious}) {
           <h2>{pair.title}</h2>
           <p>{pair.curatorialNote}</p>
         </header>
-        <DialogueComparisonStation pair={pair}
+        <DialogueComparisonStation pair={pair} mode={compareMode} onModeChange={onCompareModeChange}
           originalUrl={imageUrl(pair.original.file)}
           inspiredUrl={imageUrl(pair.inspired.file)}
           sideBySide={<PairedArt pair={pair} large/>}/>
@@ -150,6 +150,8 @@ function WaitingWall() {
 
 export default function DomistikaDialogues() {
   const [selectedId,setSelectedId]=useState(()=>dialogueFromHash(onView,window.location.hash)?.id ?? null);
+  // Keep the visitor's chosen comparison mode across artwork changes and modal mounts.
+  const [compareMode,setCompareMode]=useState('side-by-side');
   const selected=onView.find(pair=>pair.id===selectedId);
   const originRef=useRef(null);
   const selectedIdRef=useRef(selectedId);
@@ -221,7 +223,7 @@ export default function DomistikaDialogues() {
         <a href="#community-gallery">VISIT THE COMMUNITY GALLERY ↗</a>
       </div>
     </div>
-    {selected && <DialogueViewer pair={selected} onClose={close}
+    {selected && <DialogueViewer pair={selected} compareMode={compareMode} onCompareModeChange={setCompareMode} onClose={close}
       onNext={()=>move(1)} onPrevious={()=>move(-1)}/>}
   </section>;
 }
