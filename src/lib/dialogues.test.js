@@ -20,11 +20,34 @@ const pair=(id='chromatic-cathedral')=>({
   inspired:{file:id+'-inspired.webp',mime:'image/webp',sha256:fakeSha,alt:'Expanded luminous geometric architecture with nested concentric forms and depth.'},
 });
 
-test('opening Exhibition 004 has a real empty state, not fictional artwork',()=>{
+test('Exhibition 004 contains four approved founding pairs, each with original and response provenance',()=>{
   assert.equal(domistikaDialoguesExhibition.id,'004');
-  assert.deepEqual(domistikaDialoguePairs,[]);
+  assert.equal(domistikaDialoguePairs.length,4);
+  assert.deepEqual(domistikaDialoguePairs.map(x=>x.id),[
+    'chromatic-gear-cathedral',
+    'the-ninefold-trickster',
+    'orbit-of-a-thousand-hinges',
+    'the-eye-that-blooms',
+  ]);
   assert.deepEqual(validateDialoguePairs(domistikaDialoguePairs),[]);
+  for(const artwork of domistikaDialoguePairs) {
+    assert.equal(artwork.status,'approved');
+    assert.equal(artwork.provenance.originalTool,'Domistika');
+    assert.match(artwork.inspiredCredit,/ChatGPT.*Sol 5\.6/);
+    assert.notEqual(artwork.original.sha256,artwork.inspired.sha256);
+    assert.match(artwork.original.file,/\-original\.webp$/);
+    assert.match(artwork.inspired.file,/\-inspired\.webp$/);
+  }
+  // Build-time lookup must refuse to display incomplete pairs.
   assert.deepEqual(installedDialoguePairs(domistikaDialoguePairs,{}),[]);
+  const onlyOriginals=Object.fromEntries(domistikaDialoguePairs.map(x=>
+    ['./assets/dialogues/'+x.original.file,'/original.webp']));
+  assert.deepEqual(installedDialoguePairs(domistikaDialoguePairs,onlyOriginals),[]);
+  const complete=Object.fromEntries(domistikaDialoguePairs.flatMap(x=>[
+    ['./assets/dialogues/'+x.original.file,'/original.webp'],
+    ['./assets/dialogues/'+x.inspired.file,'/inspired.webp'],
+  ]));
+  assert.deepEqual(installedDialoguePairs(domistikaDialoguePairs,complete),domistikaDialoguePairs);
 });
 
 test('approved paired-art records pass schema and only display when both images exist',()=>{
