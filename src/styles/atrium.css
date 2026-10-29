@@ -108,3 +108,8 @@
 @media (prefers-reduced-motion:reduce) {
   .atrium__painting { transition:none !important; }
 }
+
+/* The existing 2D atrium stays intact; XR is an explicitly opt-in separate room. */
+.atrium__controls a.atrium__xr { display:inline-flex; align-items:center; justify-content:center; text-align:center; text-decoration:none; min-height:45px; background:#263e49; color:#f1d1a5; border-color:#d1ac74; }
+.atrium__controls a.atrium__xr:hover { background:#335565; }
+@media (max-width:760px) { .atrium__controls { flex-wrap:wrap; } .atrium__controls a.atrium__xr { width:100%; } }

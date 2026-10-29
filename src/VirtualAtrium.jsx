@@ -85,6 +85,7 @@ export default function VirtualAtrium({ onEnterWork }) {
           <button type="button" className="atrium__nav-button" onClick={() => move(-1)} aria-label="Previous painting">←</button>
           <button type="button" className="atrium__enter" onClick={() => onEnterWork(selected.id)}>ENTER ARTWORK ↗</button>
           <button type="button" className="atrium__nav-button" onClick={() => move(1)} aria-label="Next painting">→</button>
+          <a className="atrium__enter atrium__xr" href={import.meta.env.BASE_URL + "xr.html"}>ENTER EXPERIMENTAL XR WING ↗</a>
         </div>
       </div>
       <div className="atrium__stops" role="group" aria-label="Choose a painting to focus">
