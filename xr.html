@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#090d18" />
+  <meta name="description" content="Explore paintings in the Silicon Louvre's experimental 3D and WebXR wing." />
+  <link rel="icon" type="image/svg+xml" href="%BASE_URL%favicon.svg" />
+  <title>Silicon Louvre XR | Enter the Artwork</title>
+</head>
+<body>
+  <main id="xr-root">
+    <div id="stage" aria-label="Interactive 3D museum, with accessible controls below."></div>
+    <header class="hud hud--top">
+      <div><p class="kicker">THE SILICON LOUVRE / EXPERIMENTAL XR WING</p><h1>Enter the <em>artwork.</em></h1></div>
+      <a class="home-link" href="./">← RETURN TO MUSEUM</a>
+    </header>
+    <section class="hud hud--bottom" aria-label="Artwork portal controls">
+      <div class="plaque" aria-live="polite">
+        <p class="kicker" id="portal-status">ATRIUM / 004</p>
+        <h2 id="portal-title">Loading collection</h2>
+        <p id="portal-credit">Original human drawing and separately credited inspired response</p>
+        <p class="note" id="portal-note">Select a painting to explore its world.</p>
+      </div>
+      <div class="actions">
+        <div class="row"><button id="previous" type="button" aria-label="Previous painting portal">←</button><button id="next" type="button" aria-label="Next painting portal">→</button></div>
+        <button id="enter" class="primary" type="button">JUMP INTO PAINTING</button>
+        <button id="return" type="button" hidden>RETURN TO ATRIUM</button>
+        <button id="recenter" type="button">RECENTER VIEW</button>
+      </div>
+    </section>
+    <p class="help">Desktop: click artwork or use arrows + E to enter · WASD move · Esc return · R recenter. Quest 3: use controller trigger on painting or in-world return panel. No artificial VR locomotion.</p>
+    <div id="vr-dock"></div>
+    <p id="error" class="error" role="alert" hidden></p>
+  </main>
+  <script type="module" src="/src/xr/main.js"></script>
+</body>
+</html>
