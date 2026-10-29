@@ -62,3 +62,13 @@ h2 { font-family: Georgia,serif; font-size: clamp(21px,2.5vw,28px); font-weight:
 @media (max-width: 720px) {
   .wrist-panel { top: 72px; bottom: 115px; }
 }
+
+/* Deliberate zero-animation movement between fixed museum waypoints. */
+#travel-controls { display: flex; flex-wrap: wrap; gap: 6px; }
+#travel-controls button { flex: 1; min-width: 125px; font-size: 11px; letter-spacing: .025em; }
+.stop-info { font-size: 10px; color: #f3d29a; letter-spacing: .07em; line-height: 1.4; min-height: 1.4em; }
+@media (max-width: 720px) {
+  #travel-controls { grid-column: 1 / -1; }
+  #travel-controls button { min-width: 0; }
+  .stop-info { grid-column: 1 / -1; }
+}
