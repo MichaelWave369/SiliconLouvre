@@ -33,9 +33,24 @@
         <p id="stop-info" aria-live="polite" class="stop-info"></p>
         <button id="recenter" type="button">RECENTER VIEW</button>
         <button id="wrist-toggle" type="button" aria-expanded="false" aria-controls="wrist-panel">OPEN GEN.E.WRIST / WORLD</button>
+        <button id="field-check-toggle" type="button" aria-expanded="false" aria-controls="field-check-panel">QUEST FIELD CHECK</button>
       </div>
     </section>
     <aside id="wrist-panel" class="wrist-panel" aria-label="Embedded Gen.E.Wrist World Mode" hidden></aside>
+    <aside id="field-check-panel" class="field-check-panel" aria-label="Opt-in Quest field check" hidden>
+      <h2>QUEST FIELD CHECK</h2>
+      <p>Optional local test: start here, enter VR, visit paintings, exit VR, then stop and copy the report. No account, storage, upload or device tracking.</p>
+      <p><strong>Not a headset certification or GPU profiler.</strong> Frame callback intervals, renderer counters, and portal event counts only.</p>
+      <p id="field-check-status" role="status"></p>
+      <div class="field-check-actions">
+        <button type="button" id="field-check-start">START CHECK</button>
+        <button type="button" id="field-check-stop" disabled>STOP CHECK</button>
+        <button type="button" id="field-check-copy" disabled>COPY REPORT</button>
+      </div>
+      <pre id="field-check-report" tabindex="0"></pre>
+      <p id="field-check-copy-status" role="status"></p>
+      <p>Physical checks still needed: motion comfort, text legibility, controller targeting, tracking pause/resume, and repeated visits.</p>
+    </aside>
     <p id="wrist-notice" class="wrist-notice" role="status"></p>
     <p class="help">Desktop: click artwork or use arrows + E to enter · WASD move · Esc return · R recenter · G toggles Gen.E.Wrist. Quest 3: use controller trigger on paintings, wrist controls, or the visitor-following RETURN panel; squeeze toggles wrist. Mint-colored controller rays indicate active targets. Inside paintings: choose NEXT/PREVIOUS STOP plaques to teleport without animation; desktop keys [ and ] also move between chambers. No continuous VR locomotion.</p>
     <div id="vr-dock"></div>
