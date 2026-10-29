@@ -4,7 +4,7 @@ import { createWrist } from '@phi369/genewrist/src/core.js';
 import { createLouvreWorldAdapter } from '../src/xr/louvreWorldAdapter.js';
 
 function setup() {
-  let scene = { inside: false, index: 0, title: 'Chromatic Gear Cathedral', total: 4 };
+  let scene = { inside: false, index: 0, title: 'Chromatic Gear Cathedral', total: 4, realm: 'The Gear Cathedral' };
   const listeners = new Set(), captures = [], calls = [];
   const notify = () => { for (const fn of [...listeners]) fn(); };
   const commands = {
@@ -32,6 +32,7 @@ test('host registers only real museum state and retains Gen.E.Wrist universal st
   assert.equal(wrist.snapshot().worldHost.manifest.id, 'silicon-louvre');
   assert.equal(wrist.snapshot().worldHost.status.title, 'Chromatic Gear Cathedral');
   assert.equal(wrist.snapshot().worldHost.contextId, 'atrium');
+  assert.equal(wrist.snapshot().worldHost.status.realm, 'The Gear Cathedral');
   assert.equal(wrist.snapshot().worldHost.grants.length, 0);
   wrist.navigate('universal');
   assert.equal(wrist.snapshot().destination, 'universal');

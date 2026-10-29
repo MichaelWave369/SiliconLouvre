@@ -79,10 +79,15 @@ function picture(parent, file, x, y, z, size, role, stop) {
   const url = imageFiles['../assets/dialogues/' + file];
   if (url) {
     new THREE.TextureLoader().load(url, (texture) => {
+      // A user may leave the portal before its image finishes loading.
+      // Never attach a late image texture to a disposed scene.
+      if (parent.userData.disposed) { texture.dispose(); return; }
       texture.colorSpace = THREE.SRGBColorSpace;
       image.material.dispose();
       image.material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
-    }, undefined, () => { image.material.color.set('#9c5361'); });
+    }, undefined, () => {
+      if (!parent.userData.disposed) image.material.color.set('#9c5361');
+    });
   } else {
     image.material.color.set('#9c5361');
   }
@@ -266,6 +271,7 @@ function makeRealm(stop) {
 }
 function cleanupWorld() {
   if (!worldGroup) return;
+  worldGroup.userData.disposed = true;
   scene.remove(worldGroup);
   worldGroup.traverse((object) => {
     if (object.geometry) object.geometry.dispose();

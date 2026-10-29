@@ -25,6 +25,7 @@ export function createLouvreWorldAdapter({
         station: Number(scene.index) + 1,
         total: Number(scene.total),
         space: scene.inside ? 'Inside painting' : 'Museum atrium',
+        realm: String(scene.realm || 'Curated gallery'),
       },
     };
   };
@@ -54,6 +55,7 @@ export function createLouvreWorldAdapter({
     { id: 'station', label: 'Station', type: 'number', min: 1, max: 12 },
     { id: 'total', label: 'Curated works', type: 'number', min: 1, max: 12 },
     { id: 'space', label: 'Location', type: 'text' },
+    { id: 'realm', label: 'Realm', type: 'text' },
   ];
   return createWorldAdapter({
     manifest: {
