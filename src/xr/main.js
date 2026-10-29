@@ -9,6 +9,7 @@ import { createLouvreWorldAdapter } from './louvreWorldAdapter.js';
 import { realmBlueprintFor } from './realmBlueprint.js';
 import { mountRealmSculptures } from './realmMeshes.js';
 import { waypointAt, stepWaypoint, canStepWaypoint } from './waypoints.js';
+import { resolveXRTarget, isActionableTarget } from './interactionRouting.js';
 import './styles.css';
 
 const stops = createPortalStops(domistikaDialoguePairs);
@@ -23,6 +24,8 @@ let inside = false;
 let stations = [];
 let portalTargets = [];
 let returnTargets = [];
+let returnPanel = null;
+const controllerBeams = [];
 let rotating = [];
 let currentWaypoint = 0;
 let travelSigns = [];
@@ -137,7 +140,7 @@ function initializeWrist() {
       return: () => leave(),
       recenter: () => recenter(),
     },
-    onCapture: (captured) => { wristCaptured = captured; },
+    onCapture: (captured) => { wristCaptured = captured; updateTravelUi(); },
   });
   stopWristUpdates = wrist.subscribe(() => { wristDirty = true; });
   wrist.connectWorld(adapter); // No action grants by default. Visitors grant capabilities inside the wrist.
@@ -174,26 +177,61 @@ function initializeWrist() {
   renderer.xr.addEventListener('sessionend', () => toggleWrist(false));
   wristDirty = true;
 }
-function clickWristRay(ray) {
-  if (wristOpen) {
-    const hits = ray.intersectObject(wristPanelMesh, false);
-    if (!hits.length || !hits[0].uv) return true; // The captured UI blocks painting selection.
-    const x = hits[0].uv.x * wristSurface.canvas.width;
-    const y = (1 - hits[0].uv.y) * wristSurface.canvas.height;
-    const control = wristSurface.targets.find((t) => x >= t.x && x <= t.x + t.w && y >= t.y && y <= t.y + t.h);
-    if (control) {
+function selectionOptions() {
+  return {
+    inside,
+    wristOpen,
+    wristCaptured,
+    wristPanel: wristPanelMesh,
+    wristLauncher,
+    wristSurface,
+    returnTargets,
+    travelSigns,
+    portalTargets,
+  };
+}
+function selectXRTarget(ray) {
+  const target = resolveXRTarget(ray, selectionOptions());
+  switch (target.type) {
+    case 'wrist-launcher':
+      toggleWrist(true);
+      return true;
+    case 'wrist-control':
       try {
-        Promise.resolve(control.action()).catch((error) => reportWrist(error.message));
+        Promise.resolve(target.target.action()).catch((error) => reportWrist(error.message));
       } catch (error) { reportWrist(error.message); }
       wristDirty = true;
+      return true;
+    case 'waypoint':
+      return moveWaypoint(target.direction);
+    case 'return':
+      leave();
+      return true;
+    case 'painting':
+      enter(target.index);
+      return true;
+    default:
+      // Expanded wrist and input capture always block scene click-through.
+      return target.type === 'blocked';
+  }
+}
+function updateControllerFeedback() {
+  if (!renderer.xr.isPresenting) return;
+  for (const entry of controllerBeams) {
+    if (!entry.connected) continue;
+    entry.controller.updateWorldMatrix(true, false);
+    origin.setFromMatrixPosition(entry.controller.matrixWorld);
+    entry.controller.getWorldQuaternion(controllerQuaternion);
+    direction.set(0, 0, -1).applyQuaternion(controllerQuaternion);
+    raycaster.set(origin, direction);
+    raycaster.far = 20;
+    const target = resolveXRTarget(raycaster, selectionOptions());
+    const actionable = isActionableTarget(target);
+    if (actionable !== entry.actionable) {
+      entry.actionable = actionable;
+      entry.beam.material.color.setHex(actionable ? 0x83f8d2 : 0xf4d5a4);
     }
-    return true;
   }
-  if (ray.intersectObject(wristLauncher, false).length) {
-    toggleWrist(true);
-    return true;
-  }
-  return false;
 }
 function makeMuseum() {
   museumGroup = new THREE.Group();
@@ -245,9 +283,8 @@ function makeRealm(stop) {
   plaque(worldGroup, ['SEPARATE INSPIRED RESPONSE', stop.inspiredCredit], 4.8, .13, -7.4, 4, .68);
   plaque(worldGroup, [blueprint.landmark, stop.title], 0, 6.05, -11.5, 8.7, .98);
   plaque(worldGroup, ['PROCEDURAL INTERPRETATION', 'NOT A 2D-TO-3D CONVERSION'], 0, 1.0, -13, 5.4, .8);
-  const exit = plaque(worldGroup, ['RETURN TO ATRIUM', 'PRESS CONTROLLER TRIGGER'], 0, 1.75, 1.3, 3.2, .85);
-  exit.userData.returnToAtrium = true;
-  returnTargets = [exit];
+  // Persistent visitor-relative return panel was mounted at startup, not here.
+  // A realm transition only changes its visibility in updateTravelUi().
 }
 function cleanupWorld() {
   if (!worldGroup) return;
@@ -262,7 +299,6 @@ function cleanupWorld() {
     });
   });
   worldGroup = null;
-  returnTargets = [];
   rotating = [];
   scene.background = new THREE.Color('#070b19');
   scene.fog.color.set('#070b19');
@@ -280,12 +316,18 @@ function updateTravelUi() {
   const label = el('stop-info');
   if (!controls || !previous || !next) return;
   controls.hidden = !inside;
+  el('previous').disabled = inside || wristCaptured;
+  el('next').disabled = inside || wristCaptured;
+  el('enter').disabled = inside || wristCaptured;
+  el('return').disabled = !inside || wristCaptured;
+  el('recenter').disabled = wristCaptured;
   previous.disabled = !canStepWaypoint(currentWaypoint, -1, inside, wristCaptured);
   next.disabled = !canStepWaypoint(currentWaypoint, 1, inside, wristCaptured);
   label.textContent = inside ? 'CHAMBER / ' + waypointAt(currentWaypoint).label.toUpperCase() : '';
   travelSigns.forEach((sign) => {
     sign.visible = canStepWaypoint(currentWaypoint, sign.userData.direction, inside, wristCaptured) && !wristOpen;
   });
+  if (returnPanel) returnPanel.visible = inside && !wristCaptured && !wristOpen;
 }
 function moveWaypoint(direction) {
   if (!canStepWaypoint(currentWaypoint, direction, inside, wristCaptured)) return false;
@@ -294,6 +336,16 @@ function moveWaypoint(direction) {
   updateTravelUi();
   return true;
 }
+function makeReturnPanel() {
+  // Follow the *visitor rig*, not the artwork geometry, so visitors can
+  // always exit from the deep sculpture chamber or inner horizon.
+  returnPanel = plaque(rig, ['RETURN TO ATRIUM', 'CONTROLLER TRIGGER'], -3.15, 1.55, -3.8, 2.55, .77);
+  returnPanel.userData.returnToAtrium = true;
+  returnPanel.renderOrder = 91;
+  returnPanel.material.depthTest = false;
+  returnTargets = [returnPanel];
+  returnPanel.visible = false;
+}
 function makeTravelSigns() {
   const previous = plaque(rig, ['PREVIOUS STOP', 'CONTROLLER TRIGGER'], -1.5, .75, -2.6, 1.85, .67);
   previous.userData.direction = -1;
@@ -301,12 +353,6 @@ function makeTravelSigns() {
   next.userData.direction = 1;
   travelSigns = [previous, next];
   updateTravelUi();
-}
-function clickTravelRay(ray) {
-  if (!inside || wristCaptured || wristOpen) return false;
-  const hits = ray.intersectObjects(travelSigns.filter((sign) => sign.visible), false);
-  if (!hits.length) return false;
-  return moveWaypoint(hits[0].object.userData.direction);
 }
 function updateUi() {
   const stop = portalAt(stops, activeIndex);
@@ -350,22 +396,14 @@ function leave() {
   recenter();
   updateUi();
 }
-function hit(ray) {
-  const targetList = inside ? returnTargets : portalTargets;
-  const intersections = ray.intersectObjects(targetList, false);
-  if (!intersections.length) return false;
-  const data = intersections[0].object.userData;
-  if (inside && data.returnToAtrium) leave();
-  else if (!inside && Number.isInteger(data.stopIndex)) enter(data.stopIndex);
-  return true;
-}
 function controllerSelect(controller) {
+  controller.updateWorldMatrix(true, false);
   origin.setFromMatrixPosition(controller.matrixWorld);
   controller.getWorldQuaternion(controllerQuaternion);
   direction.set(0, 0, -1).applyQuaternion(controllerQuaternion);
   raycaster.set(origin, direction);
   raycaster.far = 20;
-  if (!clickWristRay(raycaster) && !wristCaptured && !clickTravelRay(raycaster)) hit(raycaster);
+  selectXRTarget(raycaster);
 }
 function addControllers() {
   for (let i = 0; i < 2; i++) {
@@ -374,6 +412,16 @@ function addControllers() {
     const beam = new THREE.Line(new THREE.BufferGeometry().setFromPoints(points),
       new THREE.LineBasicMaterial({ color: '#f4d5a4' }));
     controller.add(beam);
+    beam.visible = false;
+    const entry = { controller, beam, actionable: false, connected: false };
+    controllerBeams.push(entry);
+    controller.addEventListener('connected', () => { entry.connected = true; beam.visible = true; });
+    controller.addEventListener('disconnected', () => {
+      entry.connected = false;
+      entry.actionable = false;
+      beam.material.color.setHex(0xf4d5a4);
+      beam.visible = false;
+    });
     controller.addEventListener('select', () => controllerSelect(controller));
     controller.addEventListener('squeezestart', () => toggleWrist());
     rig.add(controller);
@@ -387,7 +435,7 @@ function setupInput() {
       -((event.clientY - rect.top) / rect.height) * 2 + 1);
     raycaster.setFromCamera(pointer, camera);
     raycaster.far = 30;
-    if (!clickWristRay(raycaster) && !wristCaptured && !clickTravelRay(raycaster)) hit(raycaster);
+    selectXRTarget(raycaster);
   });
   el('previous').addEventListener('click', () => choose(activeIndex - 1));
   el('next').addEventListener('click', () => choose(activeIndex + 1));
@@ -443,6 +491,7 @@ function start() {
   stage.appendChild(renderer.domElement);
   el('vr-dock').appendChild(VRButton.createButton(renderer, { optionalFeatures: ['local-floor', 'bounded-floor'] }));
   makeMuseum();
+  makeReturnPanel();
   makeTravelSigns();
   addControllers();
   initializeWrist();
@@ -466,6 +515,7 @@ function start() {
     if (!still.matches && !wristOpen) rotating.forEach((mesh, i) => {
       mesh.rotation.z += delta * (mesh.userData.spinSpeed || 0);
     });
+    updateControllerFeedback();
     renderer.render(scene, camera);
   });
 }
