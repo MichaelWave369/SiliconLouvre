@@ -20,3 +20,16 @@ No thumbstick locomotion, turning, object collisions, camera head-pose overrides
 - Verify that the ORIGINAL and INSPIRED paintings remain separately credited and that museum and Gen.E.Wrist navigation have not changed.
 
 A green software build is **not** a physical Quest 3 acceptance result.
+
+
+## Quest interaction reliability rung
+
+The original return-to-atrium plaque lived inside the world near the portal threshold. After jumping deep into a sculpture chamber, visitors could be more than twenty metres away from it. The return plaque is now mounted on the visitor rig, independently of world geometry, so it can be reached at every waypoint without overriding the headset's tracked physical head pose.
+
+The shared interactionRouting.js module resolves hits with one deterministic priority: while expanded, Gen.E.Wrist captures all rays (including missed panels); otherwise its launcher is preferred, followed by the nearest applicable return/waypoint target inside artwork or an artwork frame in the atrium. Desktop click and controller trigger use the same semantic routing. Mint controller beams signal a target; gold beams indicate no actionable selection.
+
+While the wrist captures input, normal HTML movement and portal controls are also disabled. When headset visibility becomes hidden, the wrist closes and releases its captured input. Controller disconnect hides its beam. These are browser safeguards, not proof of physical Quest compatibility.
+
+Tests cover action priority, wrist miss suppression, hidden travel targets, visitor-relative exit raycasts at every reviewed waypoint, and the live software integration. No smooth locomotion, automatic publication, external image requests, or changes to curatorial history are added.
+
+**Physical acceptance still required:** controller aim readability, immediate return from the inner horizon, headset pause/resume, repeat entry/exit performance, input capture and comfort.

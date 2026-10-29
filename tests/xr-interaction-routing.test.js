@@ -75,3 +75,13 @@ test('visitor-relative return target stays reachable after long-distance scene t
     assert.equal(hit.type, 'return', 'return target follows rig at z=' + z);
   }
 });
+
+
+test('runtime updates controller aiming feedback and releases input capture on headset visibility loss', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const source = await readFile(new URL('../src/xr/main.js', import.meta.url), 'utf8');
+  assert.match(source, /updateControllerFeedback\(\)/);
+  assert.match(source, /visibilitychange/);
+  assert.match(source, /toggleWrist\(false\)/);
+  assert.match(source, /selectXRTarget\(raycaster\)/);
+});
