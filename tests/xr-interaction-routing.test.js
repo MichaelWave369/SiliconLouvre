@@ -54,7 +54,24 @@ test('live app mounts a return panel to the player rig rather than a distant wor
   const text = await readFile(new URL('../src/xr/main.js', import.meta.url), 'utf8');
   assert.match(text, /returnPanel\s*=\s*plaque\(rig,/);
   assert.match(text, /returnTargets\s*=\s*\[returnPanel\]/);
-  assert.doesNotMatch(text, /returnTargets\s*=\s*\[\s*\]/g);
+  const cleanup = text.slice(text.indexOf('function cleanupWorld()'), text.indexOf('function recenter()'));
+  assert.doesNotMatch(cleanup, /returnTargets\s*=\s*\[\s*\]/);
   assert.doesNotMatch(text, /plaque\(worldGroup,\s*\['RETURN TO ATRIUM'/);
   assert.match(text, /resolveXRTarget\(/);
+});
+
+
+test('visitor-relative return target stays reachable after long-distance scene travel', () => {
+  const rig = new THREE.Group();
+  const target = plane(-3.15, -3.8, { returnToAtrium: true }, 2.55);
+  rig.add(target);
+  for (const z of [4.8, -7.7, -17, -27]) {
+    rig.position.set(0, 0, z);
+    rig.updateMatrixWorld(true);
+    const from = new THREE.Vector3(0, 1.6, z);
+    const toward = new THREE.Vector3(-3.15, 1.6, z - 3.8).sub(from).normalize();
+    const raycaster = new THREE.Raycaster(from, toward, .01, 20);
+    const hit = resolveXRTarget(raycaster, { inside: true, returnTargets: [target] });
+    assert.equal(hit.type, 'return', 'return target follows rig at z=' + z);
+  }
 });
