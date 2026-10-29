@@ -105,6 +105,7 @@ function notifyScene() {
 function toggleWrist(force = !wristOpen) {
   if (!wrist) return;
   wristOpen = Boolean(force);
+  if (wristOpen) keys.clear(); // stale desktop movement must not resume after input capture
   if (wristOpen) {
     wrist.setMode('field');
     wrist.navigate('world', { remember: false });
@@ -307,6 +308,7 @@ function recenter() {
   // Recenter at the *current* approved stop. Never overwrite headset head pose.
   const waypoint = inside ? waypointAt(currentWaypoint) : waypointAt(0);
   rig.position.set(waypoint.x, 0, waypoint.z);
+  rig.updateMatrixWorld(true); // make visitor-relative ray targets valid immediately after teleport
   if (!renderer.xr.isPresenting) camera.rotation.set(0, 0, 0);
 }
 function updateTravelUi() {
@@ -488,6 +490,18 @@ function start() {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.xr.enabled = true;
   renderer.xr.setReferenceSpaceType('local-floor');
+  renderer.xr.addEventListener('sessionstart', () => {
+    const session = renderer.xr.getSession();
+    if (!session) return;
+    const onVisibility = () => {
+      if (session.visibilityState === 'hidden') {
+        keys.clear();
+        toggleWrist(false); // release captured controls when headset tracking is interrupted
+      }
+    };
+    session.addEventListener('visibilitychange', onVisibility);
+    session.addEventListener('end', () => session.removeEventListener('visibilitychange', onVisibility), { once: true });
+  });
   stage.appendChild(renderer.domElement);
   el('vr-dock').appendChild(VRButton.createButton(renderer, { optionalFeatures: ['local-floor', 'bounded-floor'] }));
   makeMuseum();
