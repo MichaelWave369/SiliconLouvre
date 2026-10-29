@@ -30,3 +30,7 @@ There is no claim of automatic pixels-to-3D conversion, multi-user worlds, new a
 4. End headset session; verify no stale capture and that the standard website and curated artworks remain intact.
 
 Software/CI green does not establish Quest device behavior, performance or comfort. Those require a physical acceptance pass.
+
+## Context handoff safeguard
+
+Gen.E.Wrist requestWorldAction deliberately checks that the original context is still active after a handler returns. Enter and Return therefore enqueue the actual portal scene mutation for the next browser task, after Gen.E.Wrist has completed that check. The queued mutation validates the host scene and AbortSignal again, and only one portal transition can be pending. This keeps the upstream fail-closed behavior intact instead of weakening permission validation. Review future asynchronous host commands against this boundary.

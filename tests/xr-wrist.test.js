@@ -46,10 +46,14 @@ test('all actions require deliberate grant and context changes remove old contro
   wrist.setWorldGrants(['enter-portals', 'navigate-paintings']);
   await wrist.requestWorldAction('next-painting');
   await wrist.requestWorldAction('enter-portal');
+  // Context-changing host actions are queued to preserve Gen.E.Wrist's
+  // post-execution context guard; the scene changes on the next task.
+  await new Promise((resolve) => setTimeout(resolve, 0));
   assert.deepEqual(calls, ['next', 'enter']);
   assert.equal(wrist.snapshot().worldHost.contextId, 'artwork');
   await assert.rejects(wrist.requestWorldAction('next-painting'));
   await wrist.requestWorldAction('return-to-atrium');
+  await new Promise((resolve) => setTimeout(resolve, 0));
   assert.equal(wrist.snapshot().worldHost.contextId, 'atrium');
   wrist.setWorldGrants([]);
   await assert.rejects(wrist.requestWorldAction('previous-painting'));

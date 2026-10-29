@@ -28,8 +28,25 @@ export function createLouvreWorldAdapter({
       },
     };
   };
+  // A portal changes WorldAdapter context. Defer the mutation until the wrist
+  // completes its permission/context post-check; never relax that check in core.
+  // The queued task rechecks the current scene and abort signal before acting.
+  let portalQueued = false;
   const call = (name) => ({ signal }) => {
     if (signal?.aborted) return false;
+    if (name === 'enter' || name === 'return') {
+      if (portalQueued) return false;
+      portalQueued = true;
+      const wasInside = Boolean(readScene().inside);
+      setTimeout(() => {
+        portalQueued = false;
+        if (signal?.aborted || Boolean(readScene().inside) !== wasInside) return;
+        if ((name === 'enter' && !wasInside) || (name === 'return' && wasInside)) {
+          commands[name]({ signal });
+        }
+      }, 0);
+      return true;
+    }
     return commands[name]({ signal });
   };
   const fields = [
