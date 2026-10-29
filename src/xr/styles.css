@@ -41,3 +41,24 @@ h2 { font-family: Georgia,serif; font-size: clamp(21px,2.5vw,28px); font-weight:
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* Embedded Gen.E.Wrist owns its persistent Home/Back/Universal/World controls. */
+.wrist-panel {
+  position: fixed; z-index: 10; right: 16px; top: 100px; bottom: 90px;
+  width: min(450px, calc(100vw - 32px)); padding: 18px;
+  background: #0a1b27f5; border: 2px solid #dfbe8d; border-radius: 12px;
+  overflow-y: auto; color: #f3e5d2; box-shadow: 0 15px 55px #000a;
+}
+.wrist-panel nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+.wrist-panel nav button { flex: 1; min-width: 75px; padding: 9px 7px; background: #183344; }
+.wrist-panel h3 { font-family: Georgia, serif; font-size: 25px; margin: 14px 0; }
+.wrist-panel section { display: grid; gap: 12px; }
+.wrist-panel .world-screen, .wrist-panel .world-controls { display: grid; gap: 10px; }
+.wrist-panel button { min-height: 43px; overflow-wrap: anywhere; }
+.wrist-panel label, .wrist-panel p, .wrist-panel strong { line-height: 1.5; }
+.wrist-panel .grant-input { width: 20px; height: 20px; }
+.wrist-panel .adapter-status { padding: 6px; color: #eed3a8; }
+.wrist-notice { position: fixed; top: 75px; right: 18px; z-index: 12; font-size: 11px; color: #ffdca5; max-width: 450px; }
+@media (max-width: 720px) {
+  .wrist-panel { top: 72px; bottom: 115px; }
+}
