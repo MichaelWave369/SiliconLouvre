@@ -6,6 +6,9 @@ import { createWrist } from '@phi369/genewrist/src/core.js';
 import { createXRSurface } from '@phi369/genewrist/src/xr-surface.js';
 import { mountWorldPanel } from '@phi369/genewrist/src/presentation.js';
 import { createLouvreWorldAdapter } from './louvreWorldAdapter.js';
+import { realmBlueprintFor } from './realmBlueprint.js';
+import { mountRealmSculptures } from './realmMeshes.js';
+import { waypointAt, stepWaypoint, canStepWaypoint } from './waypoints.js';
 import './styles.css';
 
 const stops = createPortalStops(domistikaDialoguePairs);
@@ -14,12 +17,6 @@ const imageFiles = import.meta.glob('../assets/dialogues/*.webp', {
 });
 const el = (id) => document.getElementById(id);
 const stage = el('stage');
-const paletteSets = [
-  ['#69d8ed', '#f2cb82', '#9e85ed'],
-  ['#d88ce6', '#58e8c4', '#f6bf6b'],
-  ['#ef788e', '#f5cf70', '#76c8ed'],
-  ['#92d5ed', '#b28af4', '#f48a9c'],
-];
 let renderer, camera, rig, scene, museumGroup, worldGroup;
 let activeIndex = 0;
 let inside = false;
@@ -27,6 +24,8 @@ let stations = [];
 let portalTargets = [];
 let returnTargets = [];
 let rotating = [];
+let currentWaypoint = 0;
+let travelSigns = [];
 const sceneListeners = new Set();
 let wrist, wristSurface, wristTexture, wristPanelMesh, wristLauncher, desktopPanel;
 let wristOpen = false, wristCaptured = false, wristDirty = true;
@@ -114,6 +113,7 @@ function toggleWrist(force = !wristOpen) {
   el('wrist-toggle').setAttribute('aria-expanded', String(wristOpen));
   el('wrist-toggle').textContent = wristOpen ? 'CLOSE GEN.E.WRIST' : 'OPEN GEN.E.WRIST / WORLD';
   wristDirty = true;
+  updateTravelUi();
 }
 function initializeWrist() {
   // Uses a reviewed, exact Gen.E.Wrist Git commit. This is not a second local wrist implementation.
@@ -124,6 +124,7 @@ function initializeWrist() {
       index: activeIndex,
       title: portalAt(stops, activeIndex)?.title || 'Unknown artwork',
       total: stops.length,
+      realm: realmBlueprintFor(portalAt(stops, activeIndex)?.id)?.name || 'Curated gallery',
     }),
     subscribeScene: (notify) => {
       sceneListeners.add(notify);
@@ -226,45 +227,24 @@ function makeMuseum() {
   plaque(museumGroup, ['THE SILICON LOUVRE', 'DOMISTIKA DIALOGUES  /  XR WING'], 0, 6.3, -9.87, 9, 1.15);
 }
 function makeRealm(stop) {
+  const blueprint = realmBlueprintFor(stop.id);
+  if (!blueprint) throw new Error('This curator-approved work has no reviewed XR realm');
   worldGroup = new THREE.Group();
   scene.add(worldGroup);
-  rotating = [];
-  const colors = paletteSets[stop.index % paletteSets.length];
+  scene.background = new THREE.Color(blueprint.background);
+  scene.fog.color.set(blueprint.background);
   const floor = box(worldGroup, [28, .1, 58], [0, -.15, -17], '#101727');
   floor.material.metalness = .25;
-  for (let i = 0; i < 16; i++) {
-    const z = 0 - i * 2.1;
-    const ring = new THREE.Mesh(
-      new THREE.TorusGeometry(2.85 + (i % 3) * .3, .037, 5, 64),
-      new THREE.MeshBasicMaterial({ color: colors[i % colors.length], transparent: true, opacity: .68 })
-    );
-    ring.position.set(0, 2.35, z - 2.7);
-    worldGroup.add(ring);
-    rotating.push(ring);
-  }
-  for (let layer = 0; layer < 8; layer++) {
-    const count = layer % 2 ? 24 : 48;
-    const shape = new THREE.OctahedronGeometry(layer % 2 ? .31 : .18, 0);
-    const instanced = new THREE.InstancedMesh(shape, material(colors[layer % 3], .55), count);
-    const matrix = new THREE.Object3D();
-    const radius = 3.4 + (layer % 3) * .43;
-    for (let i = 0; i < count; i++) {
-      const angle = (i / count) * Math.PI * 2 + (layer % 2) * .07;
-      matrix.position.set(Math.cos(angle) * radius, 2.35 + Math.sin(angle) * radius, -4 - layer * 3.2);
-      matrix.rotation.set(0, angle, angle);
-      matrix.scale.set(1, 1.75, .7);
-      matrix.updateMatrix();
-      instanced.setMatrixAt(i, matrix.matrix);
-    }
-    instanced.instanceMatrix.needsUpdate = true;
-    worldGroup.add(instanced);
-  }
-  // The original and its inspired response remain separate, fully credited works.
+  // Real scene integration of the four separate, bounded interpretations.
+  rotating = mountRealmSculptures(worldGroup, blueprint).rotating;
+
+  // Artist-created originals stay intact and separately credited from inspired works.
   picture(worldGroup, stop.originalFile, -4.8, 2.2, -7.6, 3.0, 'original', stop);
   picture(worldGroup, stop.inspiredFile, 4.8, 2.2, -7.6, 3.0, 'inspired', stop);
   plaque(worldGroup, ['ORIGINAL HUMAN DRAWING', stop.originalCredit], -4.8, .13, -7.4, 4, .68);
   plaque(worldGroup, ['SEPARATE INSPIRED RESPONSE', stop.inspiredCredit], 4.8, .13, -7.4, 4, .68);
-  plaque(worldGroup, [stop.title, 'PROCEDURAL INTERPRETATION  /  NOT A 3D CONVERSION'], 0, 6.05, -10, 8.7, .98);
+  plaque(worldGroup, [blueprint.landmark, stop.title], 0, 6.05, -11.5, 8.7, .98);
+  plaque(worldGroup, ['PROCEDURAL INTERPRETATION', 'NOT A 2D-TO-3D CONVERSION'], 0, 1.0, -13, 5.4, .8);
   const exit = plaque(worldGroup, ['RETURN TO ATRIUM', 'PRESS CONTROLLER TRIGGER'], 0, 1.75, 1.3, 3.2, .85);
   exit.userData.returnToAtrium = true;
   returnTargets = [exit];
@@ -284,10 +264,49 @@ function cleanupWorld() {
   worldGroup = null;
   returnTargets = [];
   rotating = [];
+  scene.background = new THREE.Color('#070b19');
+  scene.fog.color.set('#070b19');
 }
 function recenter() {
-  rig.position.set(0, 0, 4.8);
+  // Recenter at the *current* approved stop. Never overwrite headset head pose.
+  const waypoint = inside ? waypointAt(currentWaypoint) : waypointAt(0);
+  rig.position.set(waypoint.x, 0, waypoint.z);
   if (!renderer.xr.isPresenting) camera.rotation.set(0, 0, 0);
+}
+function updateTravelUi() {
+  const previous = el('previous-stop');
+  const next = el('next-stop');
+  const controls = el('travel-controls');
+  const label = el('stop-info');
+  if (!controls || !previous || !next) return;
+  controls.hidden = !inside;
+  previous.disabled = !canStepWaypoint(currentWaypoint, -1, inside, wristCaptured);
+  next.disabled = !canStepWaypoint(currentWaypoint, 1, inside, wristCaptured);
+  label.textContent = inside ? 'CHAMBER / ' + waypointAt(currentWaypoint).label.toUpperCase() : '';
+  travelSigns.forEach((sign) => {
+    sign.visible = canStepWaypoint(currentWaypoint, sign.userData.direction, inside, wristCaptured) && !wristOpen;
+  });
+}
+function moveWaypoint(direction) {
+  if (!canStepWaypoint(currentWaypoint, direction, inside, wristCaptured)) return false;
+  currentWaypoint = stepWaypoint(currentWaypoint, direction);
+  recenter();
+  updateTravelUi();
+  return true;
+}
+function makeTravelSigns() {
+  const previous = plaque(rig, ['PREVIOUS STOP', 'CONTROLLER TRIGGER'], -1.5, .75, -2.6, 1.85, .67);
+  previous.userData.direction = -1;
+  const next = plaque(rig, ['NEXT STOP', 'CONTROLLER TRIGGER'], 1.5, .75, -2.6, 1.85, .67);
+  next.userData.direction = 1;
+  travelSigns = [previous, next];
+  updateTravelUi();
+}
+function clickTravelRay(ray) {
+  if (!inside || wristCaptured || wristOpen) return false;
+  const hits = ray.intersectObjects(travelSigns.filter((sign) => sign.visible), false);
+  if (!hits.length) return false;
+  return moveWaypoint(hits[0].object.userData.direction);
 }
 function updateUi() {
   const stop = portalAt(stops, activeIndex);
@@ -295,12 +314,16 @@ function updateUi() {
   el('portal-status').textContent = inside ? 'INSIDE ARTWORK / PROCEDURAL WORLD' : 'ATRIUM / 004 · STATION ' + (activeIndex + 1) + ' OF ' + stops.length;
   el('portal-title').textContent = stop.title;
   el('portal-credit').textContent = 'Original: ' + stop.originalCredit + '  |  Response: ' + stop.inspiredCredit;
-  el('portal-note').textContent = inside ? 'This generated environment is inspired by the displayed pair; it is not an extrusion of the image.' : stop.note;
+  const blueprint = realmBlueprintFor(stop.id);
+  el('portal-note').textContent = inside && blueprint
+    ? blueprint.name + ': ' + blueprint.description + ' Not an extrusion of the source image.'
+    : stop.note;
   el('enter').hidden = inside;
   el('return').hidden = !inside;
   el('previous').disabled = inside;
   el('next').disabled = inside;
   stations.forEach((station, i) => station.material.emissive.set(i === activeIndex ? '#655035' : '#000000'));
+  updateTravelUi();
   notifyScene();
 }
 function choose(index) {
@@ -311,6 +334,7 @@ function choose(index) {
 function enter(index = activeIndex) {
   if (inside || !stops.length) return;
   activeIndex = index;
+  currentWaypoint = 0;
   inside = true;
   museumGroup.visible = false;
   makeRealm(stops[activeIndex]);
@@ -320,6 +344,7 @@ function enter(index = activeIndex) {
 function leave() {
   if (!inside) return;
   cleanupWorld();
+  currentWaypoint = 0;
   inside = false;
   museumGroup.visible = true;
   recenter();
@@ -340,7 +365,7 @@ function controllerSelect(controller) {
   direction.set(0, 0, -1).applyQuaternion(controllerQuaternion);
   raycaster.set(origin, direction);
   raycaster.far = 20;
-  if (!clickWristRay(raycaster) && !wristCaptured) hit(raycaster);
+  if (!clickWristRay(raycaster) && !wristCaptured && !clickTravelRay(raycaster)) hit(raycaster);
 }
 function addControllers() {
   for (let i = 0; i < 2; i++) {
@@ -362,12 +387,14 @@ function setupInput() {
       -((event.clientY - rect.top) / rect.height) * 2 + 1);
     raycaster.setFromCamera(pointer, camera);
     raycaster.far = 30;
-    if (!clickWristRay(raycaster) && !wristCaptured) hit(raycaster);
+    if (!clickWristRay(raycaster) && !wristCaptured && !clickTravelRay(raycaster)) hit(raycaster);
   });
   el('previous').addEventListener('click', () => choose(activeIndex - 1));
   el('next').addEventListener('click', () => choose(activeIndex + 1));
   el('enter').addEventListener('click', () => enter());
   el('return').addEventListener('click', leave);
+  el('previous-stop').addEventListener('click', () => moveWaypoint(-1));
+  el('next-stop').addEventListener('click', () => moveWaypoint(1));
   el('recenter').addEventListener('click', recenter);
   window.addEventListener('keydown', (event) => {
     if (event.altKey || event.metaKey || event.ctrlKey || event.repeat) return;
@@ -381,6 +408,8 @@ function setupInput() {
     if (key === 'arrowright' && !inside) { event.preventDefault(); choose(activeIndex + 1); }
     if (key === 'e' || key === 'enter') enter();
     if (key === 'escape') leave();
+    if (key === '[') moveWaypoint(-1);
+    if (key === ']') moveWaypoint(1);
     if (key === 'r') recenter();
   });
   window.addEventListener('keyup', (event) => keys.delete(event.key.toLowerCase()));
@@ -414,6 +443,7 @@ function start() {
   stage.appendChild(renderer.domElement);
   el('vr-dock').appendChild(VRButton.createButton(renderer, { optionalFeatures: ['local-floor', 'bounded-floor'] }));
   makeMuseum();
+  makeTravelSigns();
   addControllers();
   initializeWrist();
   setupInput();
@@ -434,7 +464,7 @@ function start() {
       rig.position.z = THREE.MathUtils.clamp(rig.position.z + (dz / length) * delta * 3.3, inside ? -29 : -8, 8);
     }
     if (!still.matches && !wristOpen) rotating.forEach((mesh, i) => {
-      mesh.rotation.z += delta * (i % 2 ? -.035 : .035);
+      mesh.rotation.z += delta * (mesh.userData.spinSpeed || 0);
     });
     renderer.render(scene, camera);
   });
