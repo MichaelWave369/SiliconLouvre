@@ -19,7 +19,8 @@
   "dependencies": {
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "three": "^0.180.0"
+    "three": "^0.180.0",
+    "@phi369/genewrist": "github:MichaelWave369/GenEWrist#d492425ee2316a94f5564dd91400e745536e53cf"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^5.0.4",

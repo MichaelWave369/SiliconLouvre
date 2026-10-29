@@ -27,9 +27,12 @@
         <button id="enter" class="primary" type="button">JUMP INTO PAINTING</button>
         <button id="return" type="button" hidden>RETURN TO ATRIUM</button>
         <button id="recenter" type="button">RECENTER VIEW</button>
+        <button id="wrist-toggle" type="button" aria-expanded="false" aria-controls="wrist-panel">OPEN GEN.E.WRIST / WORLD</button>
       </div>
     </section>
-    <p class="help">Desktop: click artwork or use arrows + E to enter · WASD move · Esc return · R recenter. Quest 3: use controller trigger on painting or in-world return panel. No artificial VR locomotion.</p>
+    <aside id="wrist-panel" class="wrist-panel" aria-label="Embedded Gen.E.Wrist World Mode" hidden></aside>
+    <p id="wrist-notice" class="wrist-notice" role="status"></p>
+    <p class="help">Desktop: click artwork or use arrows + E to enter · WASD move · Esc return · R recenter · G toggles Gen.E.Wrist. Quest 3: use controller trigger on painting, wrist controls or return panel; squeeze toggles wrist. No artificial VR locomotion.</p>
     <div id="vr-dock"></div>
     <p id="error" class="error" role="alert" hidden></p>
   </main>

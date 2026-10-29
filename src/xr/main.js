@@ -2,6 +2,10 @@ import * as THREE from 'three';
 import { VRButton } from 'three/addons/webxr/VRButton.js';
 import { domistikaDialoguePairs } from '../data/domistikaDialogues.js';
 import { createPortalStops, portalAt } from './portalModel.js';
+import { createWrist } from '@phi369/genewrist/src/core.js';
+import { createXRSurface } from '@phi369/genewrist/src/xr-surface.js';
+import { mountWorldPanel } from '@phi369/genewrist/src/presentation.js';
+import { createLouvreWorldAdapter } from './louvreWorldAdapter.js';
 import './styles.css';
 
 const stops = createPortalStops(domistikaDialoguePairs);
@@ -23,6 +27,10 @@ let stations = [];
 let portalTargets = [];
 let returnTargets = [];
 let rotating = [];
+const sceneListeners = new Set();
+let wrist, wristSurface, wristTexture, wristPanelMesh, wristLauncher, desktopPanel;
+let wristOpen = false, wristCaptured = false, wristDirty = true;
+let stopWristUpdates = () => {};
 const keys = new Set();
 const clock = new THREE.Clock();
 const still = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -79,6 +87,107 @@ function picture(parent, file, x, y, z, size, role, stop) {
     image.material.color.set('#9c5361');
   }
   return { frame, image };
+}
+function reportWrist(message) {
+  const status = el('wrist-notice');
+  if (status) status.textContent = String(message || '').slice(0, 240);
+}
+function notifyScene() {
+  for (const listener of [...sceneListeners]) listener();
+}
+function toggleWrist(force = !wristOpen) {
+  if (!wrist) return;
+  wristOpen = Boolean(force);
+  if (wristOpen) {
+    wrist.setMode('field');
+    wrist.navigate('world', { remember: false });
+  }
+  wrist.setInputCaptured(wristOpen);
+  wristPanelMesh.visible = wristOpen;
+  wristLauncher.visible = !wristOpen;
+  el('wrist-panel').hidden = !wristOpen;
+  el('wrist-toggle').setAttribute('aria-expanded', String(wristOpen));
+  el('wrist-toggle').textContent = wristOpen ? 'CLOSE GEN.E.WRIST' : 'OPEN GEN.E.WRIST / WORLD';
+  wristDirty = true;
+}
+function initializeWrist() {
+  // Uses a reviewed, exact Gen.E.Wrist Git commit. This is not a second local wrist implementation.
+  wrist = createWrist({ worlds: [], storage: null });
+  const adapter = createLouvreWorldAdapter({
+    readScene: () => ({
+      inside,
+      index: activeIndex,
+      title: portalAt(stops, activeIndex)?.title || 'Unknown artwork',
+      total: stops.length,
+    }),
+    subscribeScene: (notify) => {
+      sceneListeners.add(notify);
+      return () => sceneListeners.delete(notify);
+    },
+    commands: {
+      previous: () => choose(activeIndex - 1),
+      next: () => choose(activeIndex + 1),
+      enter: () => enter(),
+      return: () => leave(),
+      recenter: () => recenter(),
+    },
+    onCapture: (captured) => { wristCaptured = captured; },
+  });
+  stopWristUpdates = wrist.subscribe(() => { wristDirty = true; });
+  wrist.connectWorld(adapter); // No action grants by default. Visitors grant capabilities inside the wrist.
+  wrist.setMode('field');
+  wrist.navigate('world', { remember: false });
+  wrist.setInputCaptured(false);
+  wristSurface = createXRSurface({
+    wrist,
+    onExit: () => renderer.xr.getSession()?.end(),
+    onRecenter: () => recenter(),
+    onNotice: reportWrist,
+  });
+  wristTexture = new THREE.CanvasTexture(wristSurface.canvas);
+  wristTexture.colorSpace = THREE.SRGBColorSpace;
+  wristPanelMesh = new THREE.Mesh(new THREE.PlaneGeometry(.99, .7425),
+    new THREE.MeshBasicMaterial({ map: wristTexture, depthTest: false, side: THREE.DoubleSide }));
+  wristPanelMesh.position.set(.15, 1.66, -1.12);
+  wristPanelMesh.renderOrder = 100;
+  wristPanelMesh.visible = false;
+  rig.add(wristPanelMesh);
+  wristLauncher = plaque(rig, ['GEN.E.WRIST', 'WORLD CONTROLS'], .8, 1.12, -1.3, .98, .38);
+  wristLauncher.renderOrder = 90;
+  wristLauncher.material.depthTest = false;
+  desktopPanel = mountWorldPanel({ root: el('wrist-panel'), wrist, onNotice: reportWrist });
+  el('wrist-toggle').addEventListener('click', () => toggleWrist());
+  window.addEventListener('pagehide', () => {
+    toggleWrist(false);
+    stopWristUpdates();
+    desktopPanel?.dispose();
+    wristSurface?.destroy();
+    wristTexture?.dispose();
+    wrist?.dispose();
+  }, { once: true });
+  renderer.xr.addEventListener('sessionend', () => toggleWrist(false));
+  wristDirty = true;
+}
+function clickWristRay(ray) {
+  if (wristOpen) {
+    const hits = ray.intersectObject(wristPanelMesh, false);
+    if (!hits.length || !hits[0].uv) return true; // The captured UI blocks painting selection.
+    const x = hits[0].uv.x * wristSurface.canvas.width;
+    const y = (1 - hits[0].uv.y) * wristSurface.canvas.height;
+    const control = wristSurface.targets.find((t) => x >= t.x && x <= t.x + t.w && y >= t.y && y <= t.y + t.h);
+    if (control) {
+      try {
+        Promise.resolve(control.action()).catch((error) => reportWrist(error.message));
+      } catch (error) { reportWrist(error.message); }
+      wristDirty = true;
+    }
+    return true;
+  }
+  if (ray.intersectObject(wristLauncher, false).length) {
+    toggleWrist(true);
+    return true;
+  }
+  return false;
 }
 function makeMuseum() {
   museumGroup = new THREE.Group();
@@ -186,6 +295,7 @@ function updateUi() {
   el('previous').disabled = inside;
   el('next').disabled = inside;
   stations.forEach((station, i) => station.material.emissive.set(i === activeIndex ? '#655035' : '#000000'));
+  notifyScene();
 }
 function choose(index) {
   if (inside || !stops.length) return;
@@ -224,7 +334,7 @@ function controllerSelect(controller) {
   direction.set(0, 0, -1).applyQuaternion(controllerQuaternion);
   raycaster.set(origin, direction);
   raycaster.far = 20;
-  hit(raycaster);
+  if (!clickWristRay(raycaster) && !wristCaptured) hit(raycaster);
 }
 function addControllers() {
   for (let i = 0; i < 2; i++) {
@@ -234,6 +344,7 @@ function addControllers() {
       new THREE.LineBasicMaterial({ color: '#f4d5a4' }));
     controller.add(beam);
     controller.addEventListener('select', () => controllerSelect(controller));
+    controller.addEventListener('squeezestart', () => toggleWrist());
     rig.add(controller);
   }
 }
@@ -245,7 +356,7 @@ function setupInput() {
       -((event.clientY - rect.top) / rect.height) * 2 + 1);
     raycaster.setFromCamera(pointer, camera);
     raycaster.far = 30;
-    hit(raycaster);
+    if (!clickWristRay(raycaster) && !wristCaptured) hit(raycaster);
   });
   el('previous').addEventListener('click', () => choose(activeIndex - 1));
   el('next').addEventListener('click', () => choose(activeIndex + 1));
@@ -257,6 +368,8 @@ function setupInput() {
     const tag = event.target?.tagName;
     if (['BUTTON', 'A', 'INPUT', 'TEXTAREA'].includes(tag)) return;
     const key = event.key.toLowerCase();
+    if (key === 'g') { event.preventDefault(); toggleWrist(); return; }
+    if (wristOpen) { if (key === 'escape') toggleWrist(false); return; }
     keys.add(key);
     if (key === 'arrowleft' && !inside) { event.preventDefault(); choose(activeIndex - 1); }
     if (key === 'arrowright' && !inside) { event.preventDefault(); choose(activeIndex + 1); }
@@ -296,19 +409,25 @@ function start() {
   el('vr-dock').appendChild(VRButton.createButton(renderer, { optionalFeatures: ['local-floor', 'bounded-floor'] }));
   makeMuseum();
   addControllers();
+  initializeWrist();
   setupInput();
   recenter();
   updateUi();
   renderer.setAnimationLoop(() => {
     const delta = Math.min(clock.getDelta(), .04);
-    if (!renderer.xr.isPresenting) {
+    if (wristDirty && wristSurface) {
+      wristSurface.render();
+      wristTexture.needsUpdate = true;
+      wristDirty = false;
+    }
+    if (!renderer.xr.isPresenting && !wristCaptured) {
       let dx = Number(keys.has('d')) - Number(keys.has('a'));
       let dz = Number(keys.has('s')) - Number(keys.has('w'));
       const length = Math.hypot(dx, dz) || 1;
       rig.position.x = THREE.MathUtils.clamp(rig.position.x + (dx / length) * delta * 3.3, -11, 11);
       rig.position.z = THREE.MathUtils.clamp(rig.position.z + (dz / length) * delta * 3.3, inside ? -29 : -8, 8);
     }
-    if (!still.matches) rotating.forEach((mesh, i) => {
+    if (!still.matches && !wristOpen) rotating.forEach((mesh, i) => {
       mesh.rotation.z += delta * (i % 2 ? -.035 : .035);
     });
     renderer.render(scene, camera);
