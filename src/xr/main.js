@@ -10,6 +10,7 @@ import { realmBlueprintFor } from './realmBlueprint.js';
 import { mountRealmSculptures } from './realmMeshes.js';
 import { waypointAt, stepWaypoint, canStepWaypoint } from './waypoints.js';
 import { resolveXRTarget, isActionableTarget } from './interactionRouting.js';
+import { createQuestFieldCheck, formatQuestFieldReport } from './questFieldCheck.js';
 import './styles.css';
 
 const stops = createPortalStops(domistikaDialoguePairs);
@@ -35,6 +36,53 @@ let wristOpen = false, wristCaptured = false, wristDirty = true;
 let stopWristUpdates = () => {};
 const keys = new Set();
 const clock = new THREE.Clock();
+const fieldCheck = createQuestFieldCheck();
+let fieldCheckPanelOpen = false;
+let lastFieldCheckDraw = 0;
+function updateFieldCheckUi() {
+  const status = fieldCheck.snapshot();
+  el('field-check-report').textContent = formatQuestFieldReport(status);
+  el('field-check-start').disabled = status.state === 'recording';
+  el('field-check-stop').disabled = status.state !== 'recording';
+  el('field-check-copy').disabled = status.state === 'idle';
+  el('field-check-status').textContent = status.state === 'recording'
+    ? 'LOCAL RECORDING ACTIVE · NO UPLOADS'
+    : status.state === 'stopped'
+      ? 'CAPTURE STOPPED · COPY REPORT FOR REVIEW'
+      : 'INACTIVE · PRESS START BEFORE ENTERING VR';
+}
+function initializeFieldCheckPanel() {
+  el('field-check-toggle').addEventListener('click', () => {
+    fieldCheckPanelOpen = !fieldCheckPanelOpen;
+    el('field-check-panel').hidden = !fieldCheckPanelOpen;
+    el('field-check-toggle').setAttribute('aria-expanded', String(fieldCheckPanelOpen));
+    if (fieldCheckPanelOpen) updateFieldCheckUi();
+  });
+  el('field-check-start').addEventListener('click', () => {
+    fieldCheck.start();
+    updateFieldCheckUi();
+  });
+  el('field-check-stop').addEventListener('click', () => {
+    fieldCheck.stop();
+    updateFieldCheckUi();
+  });
+  el('field-check-copy').addEventListener('click', async () => {
+    const report = formatQuestFieldReport(fieldCheck.snapshot());
+    const feedback = el('field-check-copy-status');
+    if (!navigator.clipboard?.writeText) {
+      feedback.textContent = 'Clipboard unavailable. Select the report text above and copy manually.';
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(report);
+      feedback.textContent = 'Report copied locally. No data was sent.';
+    } catch {
+      feedback.textContent = 'Clipboard blocked. Select the report text above and copy manually.';
+    }
+  });
+  updateFieldCheckUi();
+}
+
 const still = window.matchMedia('(prefers-reduced-motion: reduce)');
 const raycaster = new THREE.Raycaster();
 const origin = new THREE.Vector3();
@@ -386,12 +434,14 @@ function enter(index = activeIndex) {
   inside = true;
   museumGroup.visible = false;
   makeRealm(stops[activeIndex]);
+  fieldCheck.note('portal-enter', stops[activeIndex].id);
   recenter();
   updateUi();
 }
 function leave() {
   if (!inside) return;
   cleanupWorld();
+  fieldCheck.note('portal-return');
   currentWaypoint = 0;
   inside = false;
   museumGroup.visible = true;
@@ -493,14 +543,20 @@ function start() {
   renderer.xr.addEventListener('sessionstart', () => {
     const session = renderer.xr.getSession();
     if (!session) return;
+    fieldCheck.note('xr-start');
     const onVisibility = () => {
       if (session.visibilityState === 'hidden') {
+        fieldCheck.note('xr-hidden');
         keys.clear();
         toggleWrist(false); // release captured controls when headset tracking is interrupted
       }
     };
     session.addEventListener('visibilitychange', onVisibility);
-    session.addEventListener('end', () => session.removeEventListener('visibilitychange', onVisibility), { once: true });
+    session.addEventListener('end', () => {
+      fieldCheck.note('xr-end');
+      session.removeEventListener('visibilitychange', onVisibility);
+      if (fieldCheckPanelOpen) updateFieldCheckUi();
+    }, { once: true });
   });
   stage.appendChild(renderer.domElement);
   el('vr-dock').appendChild(VRButton.createButton(renderer, { optionalFeatures: ['local-floor', 'bounded-floor'] }));
@@ -509,6 +565,7 @@ function start() {
   makeTravelSigns();
   addControllers();
   initializeWrist();
+  initializeFieldCheckPanel();
   setupInput();
   recenter();
   updateUi();
@@ -531,6 +588,12 @@ function start() {
     });
     updateControllerFeedback();
     renderer.render(scene, camera);
+    const now = performance.now();
+    fieldCheck.frame(now, renderer.info, renderer.xr.isPresenting);
+    if (fieldCheckPanelOpen && now - lastFieldCheckDraw > 1500) {
+      lastFieldCheckDraw = now;
+      updateFieldCheckUi();
+    }
   });
 }
 try { start(); }
